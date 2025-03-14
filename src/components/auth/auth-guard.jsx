@@ -8,11 +8,11 @@
 // import { logger } from '@/lib/default-logger';
 // import { useUser } from '@/hooks/use-user';
 
-// export interface GuestGuardProps {
+// export interface AuthGuardProps {
 //   children: React.ReactNode;
 // }
 
-// export function GuestGuard({ children }: GuestGuardProps): React.JSX.Element | null {
+// export function AuthGuard({ children }: AuthGuardProps): React.JSX.Element | null {
 //   const router = useRouter();
 //   const { user, error, isLoading } = useUser();
 //   const [isChecking, setIsChecking] = React.useState<boolean>(true);
@@ -27,9 +27,9 @@
 //       return;
 //     }
 
-//     if (user) {
-//       logger.debug('[GuestGuard]: User is logged in, redirecting to dashboard test');
-//       router.replace(paths.dashboard.overview);
+//     if (!user) {
+//       logger.debug('[AuthGuard]: User is not logged in, redirecting to sign in');
+//       router.replace(paths.auth.signIn);
 //       return;
 //     }
 

@@ -1,18 +1,15 @@
-import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from 'firebase/auth';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 
-import { auth, db } from '../../../../firebase';
+import { db } from '../../../../firebase';
 
 export async function POST(req) {
-  const password = 'Abcd.@123456';
   try {
     const { event, payload } = await req.json();
-
     const { email, name, questions_and_answers, scheduled_event, cancel_url, reschedule_url, timezone, status } =
       payload;
+    const { created_at, start_time, end_time, location, name: eventName } = scheduled_event;
 
-    const { created_at, start_time, end_time, location, name: eventName, uri: eventUri } = scheduled_event;
-
+    // Store meeting details
     await addDoc(collection(db, 'meetings'), {
       eventType: event,
       createdAt: new Date(created_at),
@@ -31,11 +28,18 @@ export async function POST(req) {
       status: status,
     });
 
-    // Check if email is already registered
-    const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-    if (signInMethods.length === 0) {
-      // Email is not registered, create new user
-      await createUserWithEmailAndPassword(auth, email, password);
+    // Check if user already exists in the 'users' collection
+    const usersRef = collection(db, 'users');
+    const emailQuery = query(usersRef, where('email', '==', email));
+    const querySnapshot = await getDocs(emailQuery);
+
+    if (querySnapshot.empty) {
+      // Add user only if email doesn't exist
+      await addDoc(usersRef, {
+        email: email,
+        password: '',
+        createdAt: new Date(),
+      });
     }
 
     return new Response(JSON.stringify({ message: 'Webhook received successfully!' }), { status: 200 });
