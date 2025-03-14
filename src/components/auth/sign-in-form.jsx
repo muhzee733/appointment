@@ -18,6 +18,7 @@ import Typography from '@mui/material/Typography';
 import { Eye as EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
 import { EyeSlash as EyeSlashIcon } from '@phosphor-icons/react/dist/ssr/EyeSlash';
 import { collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
+import Cookies from 'js-cookie';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -32,7 +33,6 @@ const schema = z.object({
 
 export function SignInForm() {
   const router = useRouter();
-
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -78,12 +78,14 @@ export function SignInForm() {
             setIsPasswordEmpty(false);
             setOpenSnackbar(true);
             router.push('/dashboard');
-            sessionStorage.setItem('isAuth', 'true');
+            sessionStorage.setItem('isAuth', true);
+            Cookies.set('isAuth', true, { expires: 7 });
           } else if (userData.password && values.password) {
             if (userData.password === values.password) {
               setOpenSnackbar(true);
               router.push('/dashboard');
-              sessionStorage.setItem('isAuth', 'true');
+              sessionStorage.setItem('isAuth', true);
+              Cookies.set('isAuth', true, { expires: 7 });
             } else {
               setErrorMessage('Incorrect password. Please try again.');
             }
