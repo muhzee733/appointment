@@ -6,7 +6,6 @@ import { collection, addDoc } from "firebase/firestore";
 export async function POST(req) {
   try {
     const { event, payload } = await req.json();
-    const session = await getSession();  // Assuming you use next-auth or similar for session management
 
     const { email, name, questions_and_answers, scheduled_event, cancel_url, reschedule_url, timezone, status } = payload;
 
@@ -28,7 +27,6 @@ export async function POST(req) {
       rescheduleUrl: reschedule_url,
       timezone: timezone,
       status: status,
-      sessionData: session,  // Adding session data to the post request
     });
 
     return new Response(JSON.stringify({ message: 'Webhook received successfully!' }), { status: 200 });
