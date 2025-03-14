@@ -1,0 +1,22 @@
+[
+  {
+    "question": "Firstly, do you have a medical condition that has been causing you distress for 3+ months?",
+    "options": ["Yes", "No"]
+  },
+  {
+    "question": "Great, and how have you tried treating your condition?",
+    "options": ["Medication", "Therapy", "Exercise", "Other"]
+  },
+  {
+    "question": "Have you ever had surgery?",
+    "options": ["Yes", "No"]
+  },
+  {
+    "question": "How often do you exercise?",
+    "options": ["Daily", "Weekly", "Occasionally", "Never"]
+  },
+  {
+    "question": "Do you smoke cigarettes?",
+    "options": ["Yes", "No"]
+  }
+]
