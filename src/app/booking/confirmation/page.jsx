@@ -22,9 +22,6 @@ const BookingConfirmed = () => {
           <Typography variant="body2" fontWeight="bold" mt={2}>
             Hamza Naeem
           </Typography>
-          <Typography variant="body2" mt={1}>
-            08:30 - 08:45, Wednesday, March 19, 2025
-          </Typography>
           <Typography variant="body2">Dubai Time</Typography>
           <Typography variant="body2" mt={1}>
             Web conferencing details to follow.

@@ -1,17 +1,27 @@
 // app/api/calendly-webhook/route.js
-import { db } from "../../../../firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { addDoc, collection } from 'firebase/firestore';
+import { auth, db } from '../../../../firebase';
 
+async function checkIfUserExists(email) {
+  try {
+    await createUserWithEmailAndPassword(auth, email, '');
+    return null;
+  } catch (error) {
+    return error;
+  }
+}
 
 export async function POST(req) {
   try {
     const { event, payload } = await req.json();
 
-    const { email, name, questions_and_answers, scheduled_event, cancel_url, reschedule_url, timezone, status } = payload;
+    const { email, name, questions_and_answers, scheduled_event, cancel_url, reschedule_url, timezone, status } =
+      payload;
 
     const { created_at, start_time, end_time, location, name: eventName, uri: eventUri } = scheduled_event;
 
-    await addDoc(collection(db, "meetings"), {
+    await addDoc(collection(db, 'meetings'), {
       eventType: event,
       createdAt: new Date(created_at),
       inviteeEmail: email,
@@ -28,10 +38,11 @@ export async function POST(req) {
       timezone: timezone,
       status: status,
     });
+    await checkIfUserExists(email);
 
     return new Response(JSON.stringify({ message: 'Webhook received successfully!' }), { status: 200 });
   } catch (error) {
-    console.error("Error processing webhook:", error);
+    console.error('Error processing webhook:', error);
     return new Response(JSON.stringify({ message: 'Error processing webhook.' }), { status: 500 });
   }
 }
