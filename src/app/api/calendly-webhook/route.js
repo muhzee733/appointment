@@ -1,5 +1,5 @@
 // app/api/calendly-webhook/route.js
-import { db } from "../../../firebase";
+import { db } from "../../../../firebase";
 import { collection, addDoc } from "firebase/firestore";
 
 

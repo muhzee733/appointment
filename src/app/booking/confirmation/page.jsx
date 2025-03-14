@@ -31,7 +31,7 @@ const BookingConfirmed = () => {
           </Typography>
           <Box mt={3}>
             <Button variant="contained" color="primary" sx={{ mr: 1 }}>
-              Login with your email
+              Login with your email 
             </Button>
           </Box>
         </CardContent>
