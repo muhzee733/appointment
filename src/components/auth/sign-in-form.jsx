@@ -12,6 +12,7 @@ import FormHelperText from '@mui/material/FormHelperText';
 import InputLabel from '@mui/material/InputLabel';
 import Link from '@mui/material/Link';
 import OutlinedInput from '@mui/material/OutlinedInput';
+import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Eye as EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
@@ -37,6 +38,11 @@ export function SignInForm() {
   const [errorMessage, setErrorMessage] = useState(null);
   const [emailExists, setEmailExists] = useState(false);
   const [isPasswordEmpty, setIsPasswordEmpty] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
 
   const {
     control,
@@ -70,12 +76,14 @@ export function SignInForm() {
 
             setErrorMessage('Password updated successfully!');
             setIsPasswordEmpty(false);
+            setOpenSnackbar(true);
             router.push('/dashboard');
-            sessionStorage.setItem("isAuth","true")
+            sessionStorage.setItem('isAuth', 'true');
           } else if (userData.password && values.password) {
             if (userData.password === values.password) {
+              setOpenSnackbar(true);
               router.push('/dashboard');
-              sessionStorage.setItem("isAuth","true")
+              sessionStorage.setItem('isAuth', 'true');
             } else {
               setErrorMessage('Incorrect password. Please try again.');
             }
@@ -173,6 +181,11 @@ export function SignInForm() {
           </Button>
         </Stack>
       </form>
+      <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity="success">
+          Login successful! Redirecting...
+        </Alert>
+      </Snackbar>
     </Stack>
   );
 }
