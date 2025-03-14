@@ -32,7 +32,7 @@ export default async function handler(req, res) {
         rescheduleUrl: reschedule_url,
         timezone: timezone,
         status: status,
-        patientId: patientId,
+        data: "null"
       });
     }
   } catch (error) {
