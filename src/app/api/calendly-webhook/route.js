@@ -1,13 +1,36 @@
 // app/api/calendly-webhook/route.js
+import { db } from "../../../firebase";
+import { collection, addDoc } from "firebase/firestore";
+
 
 export async function POST(req) {
   try {
-    const data = await req.json();  // Parse the request body
+    const { event, payload } = await req.json();
+    const session = await getSession();  // Assuming you use next-auth or similar for session management
 
-    // Handle the data (e.g., log it or process it)
-    console.log("Received Calendly webhook data:", data);
+    const { email, name, questions_and_answers, scheduled_event, cancel_url, reschedule_url, timezone, status } = payload;
 
-    // Respond with a success status
+    const { created_at, start_time, end_time, location, name: eventName, uri: eventUri } = scheduled_event;
+
+    await addDoc(collection(db, "meetings"), {
+      eventType: event,
+      createdAt: new Date(created_at),
+      inviteeEmail: email,
+      inviteeName: name,
+      questionsAndAnswers: questions_and_answers,
+      eventDetails: {
+        name: eventName,
+        startTime: new Date(start_time),
+        endTime: new Date(end_time),
+        location: location,
+      },
+      cancelUrl: cancel_url,
+      rescheduleUrl: reschedule_url,
+      timezone: timezone,
+      status: status,
+      sessionData: session,  // Adding session data to the post request
+    });
+
     return new Response(JSON.stringify({ message: 'Webhook received successfully!' }), { status: 200 });
   } catch (error) {
     console.error("Error processing webhook:", error);
