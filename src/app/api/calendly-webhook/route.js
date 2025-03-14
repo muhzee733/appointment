@@ -1,18 +1,11 @@
 // app/api/calendly-webhook/route.js
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { addDoc, collection } from 'firebase/firestore';
+
 import { auth, db } from '../../../../firebase';
 
-async function checkIfUserExists(email) {
-  try {
-    await createUserWithEmailAndPassword(auth, email, '');
-    return null;
-  } catch (error) {
-    return error;
-  }
-}
-
 export async function POST(req) {
+  const password = 'Abcd.@123456';
   try {
     const { event, payload } = await req.json();
 
@@ -38,8 +31,8 @@ export async function POST(req) {
       timezone: timezone,
       status: status,
     });
-    await checkIfUserExists(email);
-
+    const user = await createUserWithEmailAndPassword(auth, email, password);
+    console.log(user, 'response')
     return new Response(JSON.stringify({ message: 'Webhook received successfully!' }), { status: 200 });
   } catch (error) {
     console.error('Error processing webhook:', error);
