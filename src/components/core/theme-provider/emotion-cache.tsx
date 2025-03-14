@@ -52,14 +52,14 @@ export default function NextAppDirEmotionCacheProvider(props: NextAppDirEmotionC
     }
 
     let styles = '';
-    let dataEmotionAttribute = registry.cache.key;
+    let dataEmotionAttribute = registry.cache.key ?? '';
 
     const globals: { name: string; style: string }[] = [];
 
     inserted.forEach(({ name, isGlobal }) => {
       const style = registry.cache.inserted[name];
 
-      if (typeof style !== 'boolean') {
+      if (typeof style !== 'boolean' && style) {
         if (isGlobal) {
           globals.push({ name, style });
         } else {
