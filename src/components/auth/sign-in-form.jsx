@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import RouterLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,164 +15,119 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Eye as EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
 import { EyeSlash as EyeSlashIcon } from '@phosphor-icons/react/dist/ssr/EyeSlash';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { collection, doc, getDocs, query, where } from 'firebase/firestore';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { paths } from '@/paths';
 
-import { auth } from '../../../firebase';
+import { db } from '../../../firebase';
 
-const emailSchema = z.object({
+const schema = z.object({
   email: z.string().min(1, { message: 'Email is required' }).email(),
-});
-
-const passwordSchema = z.object({
   password: z.string().min(1, { message: 'Password is required' }),
 });
 
 export function SignInForm() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
   const {
-    control: emailControl,
-    handleSubmit: handleEmailSubmit,
-    formState: { errors: emailErrors },
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors },
   } = useForm({
-    defaultValues: { email: '' },
-    resolver: zodResolver(emailSchema),
+    resolver: zodResolver(schema),
   });
 
-  const {
-    control: passwordControl,
-    handleSubmit: handlePasswordSubmit,
-    formState: { errors: passwordErrors },
-  } = useForm({
-    resolver: zodResolver(passwordSchema),
-  });
+  const onSubmit = useCallback(
+    async (values) => {
+      setIsPending(true);
+      setErrorMessage(null);
 
-  // Function to check if the email exists in Firebase
-  const checkEmailExists = async ({ email }) => {
-    setIsPending(true);
-    setErrorMessage(null);
-
-    try {
-      await signInWithEmailAndPassword(auth, email, 'randompassword');
-    } catch (error) {
-      if (error.code === 'auth/user-not-found') {
-        setErrorMessage('Email not found. Please sign up first.');
-        setIsPending(false);
-        return;
-      }
-
-      if (error.code === 'auth/wrong-password') {
-        // Email exists but wrong password, so we proceed to the password step
-        setIsEmailVerified(true);
-        setEmail(email);
-        setErrorMessage(null);
-      } else {
+      try {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('email', '==', values.email));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          console.log('Email exists:', querySnapshot.docs[0].data());
+        } else {
+          setErrorMessage('Email does not exist. Schedule an appointment and then log in. Thank you.');
+        }
+      } catch (error) {
+        setError('root', { type: 'server', message: error.message });
         setErrorMessage(error.message);
+        setIsPending(false);
       }
-    } finally {
-      setIsPending(false);
-    }
-  };
-
-  // Function to handle password submission
-  const handleSignIn = async ({ password }) => {
-    setIsPending(true);
-    setErrorMessage(null);
-
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      const token = await user.getIdToken();
-      sessionStorage.setItem('firebaseToken', token);
-      router.push('/dashboard');
-    } catch (error) {
-      setErrorMessage(error.message);
-    } finally {
-      setIsPending(false);
-    }
-  };
+    },
+    [router, setError]
+  );
 
   return (
     <Stack spacing={4}>
-      <Typography variant="h4">Sign in</Typography>
-
-      {!isEmailVerified ? (
-        // Email Input Step
-        <form onSubmit={handleEmailSubmit(checkEmailExists)}>
-          <Stack spacing={2}>
-            <Controller
-              control={emailControl}
-              name="email"
-              render={({ field }) => (
-                <FormControl error={Boolean(emailErrors.email)}>
-                  <InputLabel>Email address</InputLabel>
-                  <OutlinedInput {...field} label="Email address" type="email" />
-                  {emailErrors.email && <FormHelperText>{emailErrors.email.message}</FormHelperText>}
-                </FormControl>
-              )}
-            />
-            {errorMessage && <Alert color="error">{errorMessage}</Alert>}
-            <Button disabled={isPending} type="submit" variant="contained">
-              Next
-            </Button>
-          </Stack>
-        </form>
-      ) : (
-        // Password Input Step
-        <form onSubmit={handlePasswordSubmit(handleSignIn)}>
-          <Stack spacing={2}>
-            <Typography variant="h6">Enter your password</Typography>
-            <Controller
-              control={passwordControl}
-              name="password"
-              render={({ field }) => (
-                <FormControl error={Boolean(passwordErrors.password)}>
-                  <InputLabel>Password</InputLabel>
-                  <OutlinedInput
-                    {...field}
-                    endAdornment={
-                      showPassword ? (
-                        <EyeIcon
-                          cursor="pointer"
-                          fontSize="var(--icon-fontSize-md)"
-                          onClick={() => setShowPassword(false)}
-                        />
-                      ) : (
-                        <EyeSlashIcon
-                          cursor="pointer"
-                          fontSize="var(--icon-fontSize-md)"
-                          onClick={() => setShowPassword(true)}
-                        />
-                      )
-                    }
-                    label="Password"
-                    type={showPassword ? 'text' : 'password'}
-                  />
-                  {passwordErrors.password && <FormHelperText>{passwordErrors.password.message}</FormHelperText>}
-                </FormControl>
-              )}
-            />
-            <div>
-              <Link component={RouterLink} href={paths.auth.resetPassword} variant="subtitle2">
-                Forgot password?
-              </Link>
-            </div>
-            {errorMessage && <Alert color="error">{errorMessage}</Alert>}
-            <Button disabled={isPending} type="submit" variant="contained">
-              Sign in
-            </Button>
-          </Stack>
-        </form>
-      )}
+      <Stack spacing={1}>
+        <Typography variant="h4">Sign in</Typography>
+      </Stack>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Stack spacing={2}>
+          <Controller
+            control={control}
+            name="email"
+            defaultValue=""
+            render={({ field }) => (
+              <FormControl error={Boolean(errors.email)}>
+                <InputLabel>Email address</InputLabel>
+                <OutlinedInput {...field} label="Email address" type="email" />
+                {errors.email ? <FormHelperText>{errors.email.message}</FormHelperText> : null}
+              </FormControl>
+            )}
+          />
+          <Controller
+            control={control}
+            name="password"
+            defaultValue=""
+            render={({ field }) => (
+              <FormControl error={Boolean(errors.password)}>
+                <InputLabel>Password</InputLabel>
+                <OutlinedInput
+                  {...field}
+                  endAdornment={
+                    showPassword ? (
+                      <EyeIcon
+                        cursor="pointer"
+                        fontSize="var(--icon-fontSize-md)"
+                        onClick={() => setShowPassword(false)}
+                      />
+                    ) : (
+                      <EyeSlashIcon
+                        cursor="pointer"
+                        fontSize="var(--icon-fontSize-md)"
+                        onClick={() => setShowPassword(true)}
+                      />
+                    )
+                  }
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                />
+                {errors.password ? <FormHelperText>{errors.password.message}</FormHelperText> : null}
+              </FormControl>
+            )}
+          />
+          <div>
+            <Link component={RouterLink} href={paths.auth.resetPassword} variant="subtitle2">
+              Forgot password?
+            </Link>
+          </div>
+          {errors.root || errorMessage ? <Alert color="error">{errors.root?.message || errorMessage}</Alert> : null}
+          <Button disabled={isPending} type="submit" variant="contained">
+            Sign in
+          </Button>
+        </Stack>
+      </form>
     </Stack>
   );
 }
