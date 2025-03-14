@@ -31,8 +31,7 @@ export default async function handler(req, res) {
         cancelUrl: cancel_url,
         rescheduleUrl: reschedule_url,
         timezone: timezone,
-        status: status,
-        data: "null"
+        status: status
       });
     }
   } catch (error) {
