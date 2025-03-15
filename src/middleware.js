@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(req) {
+  console.log(req, 'req')
   const isAuth = req.cookies.get('isAuth');
-  const token = Cookies.get('isAuth');
-  console.log(token, 'token');
-  console.log(isAuth, 'isAuth');
   const protectedRoutes = ['/dashboard', '/profile', '/settings'];
 
   if (protectedRoutes.includes(req.nextUrl.pathname) && !isAuth) {
