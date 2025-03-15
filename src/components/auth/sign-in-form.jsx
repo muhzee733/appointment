@@ -128,7 +128,9 @@ export function SignInForm() {
   return (
     <Stack spacing={4}>
       <Stack spacing={1}>
-        <Typography variant="h4">Sign in</Typography>
+        <Typography variant="h4" sx={{ textAlign: 'center' }}>
+          Sign in
+        </Typography>
       </Stack>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={2}>
@@ -139,8 +141,18 @@ export function SignInForm() {
             defaultValue=""
             render={({ field }) => (
               <FormControl error={Boolean(errors.email)}>
-                <InputLabel>Email address</InputLabel>
-                <OutlinedInput {...field} label="Email address" type="email" />
+                <InputLabel sx={{ color: 'white' }}>Email address</InputLabel>
+                <OutlinedInput
+                  {...field}
+                  label="Email address"
+                  type="email"
+                  sx={{
+                    color: 'white',
+                    '& .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
+                  }}
+                />
                 {errors.email ? <FormHelperText>{errors.email.message}</FormHelperText> : null}
               </FormControl>
             )}
@@ -154,7 +166,7 @@ export function SignInForm() {
               defaultValue=""
               render={({ field }) => (
                 <FormControl error={Boolean(errors.password)}>
-                  <InputLabel>{isPasswordEmpty ? 'Enter your new password' : 'Enter your password'}</InputLabel>
+                  <InputLabel sx={{ color: 'white' }}>{isPasswordEmpty ? 'Enter your new password' : 'Enter your password'}</InputLabel>
                   <OutlinedInput
                     {...field}
                     endAdornment={
@@ -174,6 +186,12 @@ export function SignInForm() {
                     }
                     label={isPasswordEmpty ? 'Enter your new password' : 'Enter your password'}
                     type={showPassword ? 'text' : 'password'}
+                    sx={{
+                      color: 'white',
+                      "& .MuiOutlinedInput-notchedOutline": { borderColor: 'white' },
+                      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: 'white' },
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: 'white' }
+                    }}
                   />
                   {errors.password ? <FormHelperText>{errors.password.message}</FormHelperText> : null}
                 </FormControl>
@@ -183,7 +201,7 @@ export function SignInForm() {
 
           {/* Forgot Password Link */}
           <div>
-            <Link component={RouterLink} href={paths.auth.resetPassword} variant="subtitle2">
+            <Link component={RouterLink} href={paths.auth.resetPassword} variant="subtitle2" sx={{ color: 'white' }}>
               Forgot password?
             </Link>
           </div>

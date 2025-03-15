@@ -10,12 +10,19 @@ export function middleware(req) {
 
   // Check if the cookie exists and contains a Gmail address
   if (isAuth) {
-    if (!isAuth.value.includes('gmail.com')) {
+    const userEmail = isAuth.value;
+  
+    // Check if the email is allowed (modify this logic as per your requirements)
+    const allowedDomains = ['gmail.com', 'promed.com']; // Add valid domains here
+    const emailDomain = userEmail.split('@')[1];
+  
+    if (!allowedDomains.includes(emailDomain)) {
       const response = NextResponse.redirect(new URL('/auth/sign-in', req.url));
       response.cookies.set('authError', 'You Got an Issue on your Account Kindly Contact Admin.', { path: '/' });
       return response;
     }
   }
+  
 
   // Define protected routes
   const protectedRoutes = ['/dashboard', '/profile', '/settings'];

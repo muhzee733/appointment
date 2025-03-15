@@ -90,8 +90,10 @@ function Appointments({ meetings, loading, error }) {
                     </TableCell>
                     <TableCell>{formattedTime}</TableCell>
                     <TableCell>
-                      <Link href={`/dashboard/booking/${meeting.id}`} passHref>
-                        <Button variant="outlined">View Details</Button>
+                      <Link href={`/doctor-dashboard/booking/${meeting.id}`} passHref>
+                        <Button variant="outlined" disabled={loading}>
+                          {loading ? <CircularProgress size={24} /> : 'View Details'}
+                        </Button>
                       </Link>
                     </TableCell>
                   </TableRow>
