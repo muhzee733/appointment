@@ -79,23 +79,13 @@ export function SignInForm() {
             setOpenSnackbar(true);
             router.push('/dashboard');
             sessionStorage.setItem('isAuth', true);
-            Cookies.set('isAuth', true, {
-              expires: 1,
-              path: '/',
-              secure: process.env.NODE_ENV === 'production',
-              httpOnly: true,
-            });
+            Cookies.set('isAuth', true, { expires: 1, path: '/', secure: true, sameSite: 'Strict' });
           } else if (userData.password && values.password) {
             if (userData.password === values.password) {
               setOpenSnackbar(true);
               router.push('/dashboard');
               sessionStorage.setItem('isAuth', true);
-              Cookies.set('isAuth', true, {
-                expires: 1,
-                path: '/',
-                secure: process.env.NODE_ENV === 'production',
-                httpOnly: true,
-              });
+              Cookies.set('isAuth', true, { expires: 1, path: '/', secure: true, sameSite: 'Strict' });
             } else {
               setErrorMessage('Incorrect password. Please try again.');
             }
