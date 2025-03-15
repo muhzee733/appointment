@@ -18,35 +18,31 @@ export default function Page() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Check if the window object is available (client-side)
-    if (typeof window !== 'undefined') {
-      const isAuth = document.cookie.split('; ').find((row) => row.startsWith('isAuth='));
-      const email = isAuth ? decodeURIComponent(isAuth.split('=')[1]) : null;
-
-      const fetchUserData = async () => {
-        try {
-          if (email) {
-            const usersRef = collection(db, 'users');
-            const q = query(usersRef, where('email', '==', email));
-            const querySnapshot = await getDocs(q);
-            if (!querySnapshot.empty) {
-              const userDoc = querySnapshot.docs[0];
-              setUserData({ id: userDoc.id, ...userDoc.data() });
-            } else {
-              setError('User not found');
-            }
+    const fetchUserData = async () => {
+      const email = sessionStorage.getItem('email')
+      console.log(email)
+      try {
+        if (email) {
+          const usersRef = collection(db, 'users');
+          const q = query(usersRef, where('email', '==', email));
+          const querySnapshot = await getDocs(q);
+          if (!querySnapshot.empty) {
+            const userDoc = querySnapshot.docs[0];
+            setUserData({ id: userDoc.id, ...userDoc.data() });
           } else {
-            setError('Contact to Admin...');
+            setError('User not found');
           }
-        } catch (err) {
-          setError('Error fetching user data: ' + err.message);
-        } finally {
-          setLoading(false);
+        } else {
+          setError('Contact to Admin...');
         }
-      };
+      } catch (err) {
+        setError('Error fetching user data: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      fetchUserData();
-    }
+    fetchUserData();
   }, []);
 
   return (

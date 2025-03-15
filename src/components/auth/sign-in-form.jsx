@@ -77,24 +77,24 @@ export function SignInForm() {
             setErrorMessage('Password updated successfully!');
             setIsPasswordEmpty(false);
             setOpenSnackbar(true);
-            sessionStorage.setItem('isAuth', true);
+            sessionStorage.setItem('email', values.email);
             Cookies.set('isAuth', values.email, { expires: 1, path: '/', secure: true, sameSite: 'Strict' });
             setTimeout(() => {
               router.push('/dashboard');
-            }, 3000);
+            }, 1000);
           } else if (userData.password && values.password) {
             if (userData.password === values.password) {
               setOpenSnackbar(true);
-              sessionStorage.setItem('isAuth', true);
+              sessionStorage.setItem('email', values.email);
               Cookies.set('isAuth', values.email, { expires: 1, path: '/', secure: true, sameSite: 'Strict' });
               if (values.email === 'doctor@promed.com') {
                 setTimeout(() => {
                   router.push('/doctor-dashboard');
-                }, 3000);
+                }, 1000);
               } else {
                 setTimeout(() => {
                   router.push('/dashboard');
-                }, 3000);
+                }, 1000);
               }
             } else {
               setErrorMessage('Incorrect password. Please try again.');
