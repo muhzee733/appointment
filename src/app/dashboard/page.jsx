@@ -48,7 +48,6 @@ function Page() {
 
     fetchMeetings();
   }, []); // Empty dependency array to run the effect only once on mount
-  console.log(meetings)
 
   return (
     <Grid container spacing={3}>
