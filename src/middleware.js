@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(req) {
+  
   const isAuth = req.cookies.get('isAuth');
   console.log(isAuth, 'isAuth');
   const protectedRoutes = ['/dashboard', '/profile', '/settings'];
