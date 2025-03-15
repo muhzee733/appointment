@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import RouterLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -77,15 +77,19 @@ export function SignInForm() {
             setErrorMessage('Password updated successfully!');
             setIsPasswordEmpty(false);
             setOpenSnackbar(true);
-            router.push('/dashboard');
             sessionStorage.setItem('isAuth', true);
-            Cookies.set('isAuth', true, { expires: 1, path: '/', secure: true, sameSite: 'Strict' });
+            Cookies.set('isAuth', values.email, { expires: 1, path: '/', secure: true, sameSite: 'Strict' });
+            setTimeout(() => {
+              router.push('/dashboard');
+            }, 3000);
           } else if (userData.password && values.password) {
             if (userData.password === values.password) {
               setOpenSnackbar(true);
-              router.push('/dashboard');
               sessionStorage.setItem('isAuth', true);
-              Cookies.set('isAuth', true, { expires: 1, path: '/', secure: true, sameSite: 'Strict' });
+              Cookies.set('isAuth', values.email, { expires: 1, path: '/', secure: true, sameSite: 'Strict' });
+              setTimeout(() => {
+                router.push('/dashboard');
+              }, 3000);
             } else {
               setErrorMessage('Incorrect password. Please try again.');
             }
@@ -104,6 +108,16 @@ export function SignInForm() {
     },
     [router, setError]
   );
+
+  useEffect(() => {
+    const cookies = document.cookie.split('; ');
+    const errorCookie = cookies.find((row) => row.startsWith('authError='));
+
+    if (errorCookie) {
+      setErrorMessage(decodeURIComponent(errorCookie.split('=')[1]));
+      document.cookie = 'authError=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    }
+  }, []);
 
   return (
     <Stack spacing={4}>
