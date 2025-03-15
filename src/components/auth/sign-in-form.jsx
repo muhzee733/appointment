@@ -87,9 +87,15 @@ export function SignInForm() {
               setOpenSnackbar(true);
               sessionStorage.setItem('isAuth', true);
               Cookies.set('isAuth', values.email, { expires: 1, path: '/', secure: true, sameSite: 'Strict' });
-              setTimeout(() => {
-                router.push('/dashboard');
-              }, 3000);
+              if (values.email === 'doctor@promed.com') {
+                setTimeout(() => {
+                  router.push('/doctor-dashboard');
+                }, 3000);
+              } else {
+                setTimeout(() => {
+                  router.push('/dashboard');
+                }, 3000);
+              }
             } else {
               setErrorMessage('Incorrect password. Please try again.');
             }
