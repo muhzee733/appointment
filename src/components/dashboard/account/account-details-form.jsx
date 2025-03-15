@@ -7,6 +7,7 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
+import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -15,7 +16,6 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import Select from '@mui/material/Select';
 import Snackbar from '@mui/material/Snackbar';
 import Grid from '@mui/material/Unstable_Grid2';
-import CircularProgress from '@mui/material/CircularProgress';
 import { collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 
 import { db } from '../../../../firebase'; // Your Firebase initialization file
@@ -50,15 +50,12 @@ export function AccountDetailsForm({ userData }) {
   const [snackbarSeverity, setSnackbarSeverity] = React.useState('success');
   const [loading, setLoading] = React.useState(false);
 
-  const isAuth = document.cookie.split('; ').find((row) => row.startsWith('isAuth='));
-  const email = isAuth ? decodeURIComponent(isAuth.split('=')[1]) : null;
-
   const updateProfile = async (event) => {
     event.preventDefault();
     setLoading(true);
 
     try {
-      const q = query(collection(db, 'users'), where('email', '==', email));
+      const q = query(collection(db, 'users'), where('email', '==', userEmail));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {

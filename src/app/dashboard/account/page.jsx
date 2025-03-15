@@ -20,7 +20,6 @@ export default function Page() {
   useEffect(() => {
     const fetchUserData = async () => {
       const email = sessionStorage.getItem('email')
-      console.log(email)
       try {
         if (email) {
           const usersRef = collection(db, 'users');
