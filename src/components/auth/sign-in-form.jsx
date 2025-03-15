@@ -79,13 +79,13 @@ export function SignInForm() {
             setOpenSnackbar(true);
             router.push('/dashboard');
             sessionStorage.setItem('isAuth', true);
-            Cookies.set('isAuth', true, { expires: 7 });
+            Cookies.set('isAuth', true, { expires: 1 });
           } else if (userData.password && values.password) {
             if (userData.password === values.password) {
               setOpenSnackbar(true);
               router.push('/dashboard');
               sessionStorage.setItem('isAuth', true);
-              Cookies.set('isAuth', true, { expires: 7 });
+              Cookies.set('isAuth', true, { expires: 1 });
             } else {
               setErrorMessage('Incorrect password. Please try again.');
             }

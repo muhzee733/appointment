@@ -1,15 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export function middleware(request) {
-  let cookie = request.cookies.get('isAuth');
-  let isAuth = cookie.value;
-  if (isAuth) {
-    return NextResponse.next();
-  } else {
-    return NextResponse.redirect(new URL('/auth/sign-in', request.url));
+export function middleware(req) {
+  const isAuth = req.cookies.get('isAuth');
+  console.log(isAuth, 'isAuth');
+  const protectedRoutes = ['/dashboard', '/profile', '/settings'];
+
+  if (protectedRoutes.includes(req.nextUrl.pathname) && !isAuth) {
+    return NextResponse.redirect(new URL('/auth/sign-in', req.url));
   }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ['/dashboard/:path*', '/profile/:path*', '/settings/:path*'], 
 };
