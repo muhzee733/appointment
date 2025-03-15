@@ -47,7 +47,7 @@ function Page() {
     };
 
     fetchMeetings();
-  }, []); // Empty dependency array to run the effect only once on mount
+  }, []);
 
   return (
     <Grid container spacing={3}>

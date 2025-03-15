@@ -34,11 +34,16 @@ export async function POST(req) {
     const querySnapshot = await getDocs(emailQuery);
 
     if (querySnapshot.empty) {
-      // Add user only if email doesn't exist
       await addDoc(usersRef, {
         email: email,
         password: '',
         createdAt: new Date(),
+        name:name,
+        phoneNumber:'',
+        state:"",
+        city:"",
+        timezone: timezone,
+        country: "Australia",
       });
     }
 
