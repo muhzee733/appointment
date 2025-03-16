@@ -102,11 +102,6 @@ export default function Page({ params }) {
     <>
       <Head>
         <title>{meeting ? `Meeting Details - ${meeting.inviteeName}` : 'Meeting Details'}</title>
-        <meta
-          name="description"
-          content="Details of the scheduled meeting, including patient information, event times, and rescheduling options."
-        />
-        <meta name="keywords" content="meeting, patient, event, schedule, reschedule" />
       </Head>
 
       <Grid container spacing={3} justifyContent="center">
@@ -173,10 +168,13 @@ export default function Page({ params }) {
                 </TableContainer>
                 <Divider sx={{ marginTop: 2, marginBottom: 2 }} />
                 <Box sx={{ textAlign: 'center' }}>
-                  <StyledButton variant="contained" href={'#'}>
-                    Join Meeting
-                  </StyledButton>
-                  <Link href={`/chat/${meeting.id}`} passHref>
+                  <Link
+                    href={{
+                      pathname: `/chat/${meeting.id}`,
+                      query: { name: meeting.inviteeName, email: meeting.inviteeEmail },
+                    }}
+                    passHref
+                  >
                     <StyledButton variant="contained" sx={{ marginTop: 2 }}>
                       Chat Now
                     </StyledButton>
