@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
+import Link from 'next/link'; // Link import
 import {
   Box,
   Button,
@@ -45,8 +46,15 @@ export default function Page({ params }) {
   const [meeting, setMeeting] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     const fetchMeeting = async () => {
       try {
         const meetingRef = doc(db, 'meetings', slug);
@@ -65,7 +73,7 @@ export default function Page({ params }) {
     };
 
     fetchMeeting();
-  }, [slug]);
+  }, [slug, mounted]);
 
   if (loading) {
     return (
@@ -92,7 +100,6 @@ export default function Page({ params }) {
 
   return (
     <>
-      {/* Add dynamic title meta tag */}
       <Head>
         <title>{meeting ? `Meeting Details - ${meeting.inviteeName}` : 'Meeting Details'}</title>
         <meta
@@ -169,6 +176,11 @@ export default function Page({ params }) {
                   <StyledButton variant="contained" href={'#'}>
                     Join Meeting
                   </StyledButton>
+                  <Link href={`/chat/${meeting.id}`} passHref>
+                    <StyledButton variant="contained" sx={{ marginTop: 2 }}>
+                      Chat Now
+                    </StyledButton>
+                  </Link>
                 </Box>
               </CardContent>
             </Card>

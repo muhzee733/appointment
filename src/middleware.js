@@ -25,7 +25,7 @@ export function middleware(req) {
   
 
   // Define protected routes
-  const protectedRoutes = ['/dashboard', '/profile', '/settings'];
+  const protectedRoutes = ['/dashboard', '/profile', '/settings', '/chat'];
 
   // If the user is not authenticated and tries to access a protected route, redirect to sign-in
   if (protectedRoutes.includes(req.nextUrl.pathname) && !isAuth) {
@@ -39,5 +39,5 @@ export function middleware(req) {
 
 // Define protected routes for the matcher
 export const config = {
-  matcher: ['/dashboard/:path*', '/profile/:path*', '/settings/:path*'],
+  matcher: ['/dashboard/:path*', '/profile/:path*', '/settings/:path*', '/chat'],
 };
