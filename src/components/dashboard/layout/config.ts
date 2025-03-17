@@ -11,3 +11,4 @@ export const patientNavItems: NavItemConfig[] = [
   { key: 'chat', title: 'Chat', href: '/chat', icon: 'ph-chat' },
   { key: 'chat', title: 'Account', href: '/dashboard/account', icon: 'user' },
 ];
+
