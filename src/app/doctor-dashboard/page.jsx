@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Grid from '@mui/material/Unstable_Grid2';
 import { collection, getDocs, query } from 'firebase/firestore';
 
+import LatestOrders from '@/components/dashboard/overview/latest-orders';
 import { TasksProgress } from '@/components/dashboard/overview/tasks-progress';
 import { TotalCustomers } from '@/components/dashboard/overview/total-customers';
 import { TotalProfit } from '@/components/dashboard/overview/total-profit';
@@ -59,7 +60,7 @@ const Page = () => {
         <TotalProfit sx={{ height: '100%' }} value="$15k" />
       </Grid>
       <Grid lg={12} sm={12} xs={12}>
-        <Appointments meetings={meetings} />
+        <LatestOrders meetings={meetings} loading={loading} error={error} />
       </Grid>
     </Grid>
   );

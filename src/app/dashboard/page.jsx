@@ -7,7 +7,6 @@ import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Grid from '@mui/material/Unstable_Grid2';
 import { collection, onSnapshot, query } from 'firebase/firestore';
-
 import LatestOrders from '@/components/dashboard/overview/latest-orders';
 
 import { db } from '../../../firebase';
@@ -15,8 +14,8 @@ import { db } from '../../../firebase';
 function Page() {
   const [loading, setLoading] = useState(true);
   const [meetings, setMeetings] = useState([]);
-  const [unreadNotifications, setUnreadNotifications] = useState([]);
-  const [error, setError] = useState('');
+  const [unreadNotifications, setUnreadNotifications] = useState(null);
+  const [openNotification, setOpenNotification] = useState(true);
 
   useEffect(() => {
     const isAuth = document.cookie.split('; ').find((row) => row.startsWith('isAuth='));
@@ -34,8 +33,8 @@ function Page() {
           id: doc.id,
           ...doc.data(),
         }))
-        .filter((meeting) => meeting.inviteeEmail === email && !meeting.isEnded);
-
+        .filter((meeting) => meeting.inviteeEmail === email)
+        .sort((a, b) => new Date(a.time) - new Date(b.time));
       setMeetings(meetingsData);
     });
 
@@ -55,17 +54,30 @@ function Page() {
 
     setLoading(false);
 
+    const autoCloseTimer = setTimeout(() => {
+      setOpenNotification(false);
+    }, 10000);
+
     return () => {
       unsubscribeMeetings();
       unsubscribeNotifications();
+      clearTimeout(autoCloseTimer); 
     };
   }, []);
+
+  const handleCloseNotification = () => {
+    setOpenNotification(false);
+  };
 
   return (
     <Grid container spacing={3}>
       <Grid lg={12} md={12} xs={12}>
-        {unreadNotifications && (
-          <Alert severity="info" sx={{ mb: 2 }}>
+        {unreadNotifications && openNotification && (
+          <Alert
+            severity="info"
+            sx={{ mb: 2 }}
+            onClose={handleCloseNotification} // Close button functionality
+          >
             <AlertTitle>New Notification</AlertTitle>
             You have a new unread Message.
             <br />
@@ -77,7 +89,7 @@ function Page() {
             </Link>
           </Alert>
         )}
-        <LatestOrders meetings={meetings}  error={error} loading={loading} />
+        <LatestOrders meetings={meetings} loading={loading} />
       </Grid>
     </Grid>
   );

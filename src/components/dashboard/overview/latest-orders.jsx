@@ -1,11 +1,11 @@
 'use client';
 
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
 import CardHeader from '@mui/material/CardHeader';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -18,25 +18,31 @@ import TableRow from '@mui/material/TableRow';
 
 const statusMap = {
   active: { label: 'Active', color: 'success' },
-  cancel: { label: 'Cancel', color: 'error' },
-  expired: { label: 'Expired', color: 'warning' }
+  canceled: { label: 'Canceled', color: 'error' },
+  expired: { label: 'Expired', color: 'warning' },
 };
 
+// Format timestamp for display
 function formatTimestamp(timestamp) {
   const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
-  return date.toLocaleString(); // You can adjust the format if necessary
-}
-
-function isExpired(meetingTime) {
-  const now = new Date();
-  const meetingDate = new Date(meetingTime.seconds * 1000 + meetingTime.nanoseconds / 1000000);
-  return now > meetingDate;
+  return date.toLocaleString();
 }
 
 function LatestOrders({ meetings, loading, error }) {
+  // State to store email
+  const [email, setEmail] = useState('');
+
+  // Fetch email from sessionStorage when component mounts
+  useEffect(() => {
+    const emailFromStorage = sessionStorage.getItem('email');
+    if (emailFromStorage) {
+      setEmail(emailFromStorage);
+    }
+  }, []);
+
   return (
     <Card sx={{ padding: 2 }}>
-      <CardHeader title="Upcoming Appointments" />
+      <CardHeader title="Appointments" />
       <Divider />
       <Box sx={{ overflowX: 'auto' }}>
         <Table sx={{ minWidth: 800 }}>
@@ -72,12 +78,8 @@ function LatestOrders({ meetings, loading, error }) {
               </TableRow>
             ) : (
               meetings.map((meeting) => {
-                const isMeetingExpired = isExpired(meeting.createdAt);
-                const { label, color } = isMeetingExpired
-                  ? statusMap.expired
-                  : statusMap[meeting.status] ?? { label: 'Unknown', color: 'default' };
+                const { label, color } = statusMap[meeting.status] || { label: 'Unknown', color: 'default' };
                 const formattedTime = formatTimestamp(meeting.createdAt);
-
                 return (
                   <TableRow hover key={meeting.id}>
                     <TableCell>{meeting.inviteeName}</TableCell>
@@ -86,11 +88,19 @@ function LatestOrders({ meetings, loading, error }) {
                       <Chip color={color} label={label} size="small" />
                     </TableCell>
                     <TableCell>{formattedTime}</TableCell>
-                    <TableCell>
-                      <Link href={`/dashboard/booking/${meeting.id}`}>
-                        <Button variant="outlined">View Details</Button>
-                      </Link>
-                    </TableCell>
+                    {email === 'doctor@promed.com' ? (
+                      <TableCell>
+                        <Link href={`/doctor-dashboard/booking/${meeting.id}`}>
+                          <Button variant="outlined">View Details</Button>
+                        </Link>
+                      </TableCell>
+                    ) : (
+                      <TableCell>
+                        <Link href={`/dashboard/booking/${meeting.id}`}>
+                          <Button variant="outlined">View Details</Button>
+                        </Link>
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })

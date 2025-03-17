@@ -18,25 +18,15 @@ import Typography from '@mui/material/Typography';
 
 const statusMap = {
   active: { label: 'Active', color: 'success' },
-  cancel: { label: 'Cancel', color: 'error' },
-  expire: { label: 'Expired', color: 'default' }, // New expire status
+  canceled: { label: 'Canceled', color: 'error' },
+  expired: { label: 'Expired', color: 'warning' },
 };
-
 function formatTimestamp(timestamp) {
   const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
   return date.toLocaleString();
 }
 
 function Appointments({ meetings, loading, error }) {
-  // Get the current date and time
-  const currentDate = new Date();
-
-  // Update meetings to assign the correct status based on their date
-  const updatedMeetings = meetings.map((meeting) => {
-    const meetingDate = new Date(meeting.createdAt.seconds * 1000 + meeting.createdAt.nanoseconds / 1000000);
-    const status = meetingDate > currentDate ? 'active' : 'expire'; // If the meeting is in the future, it's 'active', otherwise 'expire'
-    return { ...meeting, status }; // Add the calculated status to each meeting
-  });
 
   return (
     <Card sx={{ padding: 2 }}>
