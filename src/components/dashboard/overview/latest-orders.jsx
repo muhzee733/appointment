@@ -18,12 +18,19 @@ import TableRow from '@mui/material/TableRow';
 
 const statusMap = {
   active: { label: 'Active', color: 'success' },
-  cancel: { label: 'Cancel', color: 'danger' }
+  cancel: { label: 'Cancel', color: 'error' },
+  expired: { label: 'Expired', color: 'warning' }
 };
 
 function formatTimestamp(timestamp) {
   const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
   return date.toLocaleString(); // You can adjust the format if necessary
+}
+
+function isExpired(meetingTime) {
+  const now = new Date();
+  const meetingDate = new Date(meetingTime.seconds * 1000 + meetingTime.nanoseconds / 1000000);
+  return now > meetingDate;
 }
 
 function LatestOrders({ meetings, loading, error }) {
@@ -65,7 +72,10 @@ function LatestOrders({ meetings, loading, error }) {
               </TableRow>
             ) : (
               meetings.map((meeting) => {
-                const { label, color } = statusMap[meeting.status] ?? { label: 'Unknown', color: 'default' };
+                const isMeetingExpired = isExpired(meeting.createdAt);
+                const { label, color } = isMeetingExpired
+                  ? statusMap.expired
+                  : statusMap[meeting.status] ?? { label: 'Unknown', color: 'default' };
                 const formattedTime = formatTimestamp(meeting.createdAt);
 
                 return (

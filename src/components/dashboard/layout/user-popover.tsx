@@ -21,6 +21,8 @@ export interface UserPopoverProps {
 }
 
 export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): React.JSX.Element {
+  const storedEmail = typeof window !== 'undefined' ? sessionStorage.getItem('email') : null;
+  const userRole = storedEmail === 'doctor@promed.com' ? 'Doctor' : 'Patient';
   const { checkSession } = useUser();
   const router = useRouter();
 
@@ -34,7 +36,8 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
       }
 
       // Clear authentication cookies
-      Cookies.remove('isAuth');  // Remove the specific cookie you're using for auth
+      Cookies.remove('isAuth');
+      sessionStorage.removeItem('email') 
 
       // Refresh the auth state
       await checkSession?.();
@@ -55,9 +58,9 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
       slotProps={{ paper: { sx: { width: '240px' } } }}
     >
       <Box sx={{ p: '16px 20px ' }}>
-        <Typography variant="subtitle1">Patient</Typography>
+        <Typography variant="subtitle1">{userRole}</Typography>
         <Typography color="text.secondary" variant="body2">
-          patient@gmail.com
+        {storedEmail || 'No email found'}
         </Typography>
       </Box>
       <Divider />

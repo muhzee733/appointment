@@ -40,11 +40,8 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 export function AccountDetailsForm({ userData }) {
-  const { name, email: userEmail, phone, state, city } = userData || {};
+  const { name, email: userEmail } = userData || {};
 
-  const [newPhone, setNewPhone] = React.useState(phone || '');
-  const [newState, setNewState] = React.useState(state || '');
-  const [newCity, setNewCity] = React.useState(city || '');
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState('');
   const [snackbarSeverity, setSnackbarSeverity] = React.useState('success');
@@ -110,50 +107,6 @@ export function AccountDetailsForm({ userData }) {
                   <OutlinedInput value={userEmail || ''} label="Email address" name="email" readOnly />
                 </FormControl>
               </Grid>
-
-              <Grid md={6} xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>Phone number</InputLabel>
-                  <OutlinedInput
-                    value={newPhone}
-                    onChange={(e) => setNewPhone(e.target.value)}
-                    label="Phone number"
-                    name="phone"
-                    type="tel"
-                  />
-                </FormControl>
-              </Grid>
-
-              <Grid md={6} xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>State</InputLabel>
-                  <Select
-                    value={newState}
-                    onChange={(e) => setNewState(e.target.value)}
-                    label="State"
-                    name="state"
-                    variant="outlined"
-                  >
-                    {states.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid md={6} xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>City</InputLabel>
-                  <OutlinedInput
-                    value={newCity}
-                    onChange={(e) => setNewCity(e.target.value)}
-                    label="City"
-                    name="city"
-                  />
-                </FormControl>
-              </Grid>
             </Grid>
           </CardContent>
           <Divider />
@@ -169,7 +122,7 @@ export function AccountDetailsForm({ userData }) {
         open={openSnackbar}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Top center position
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
           {snackbarMessage}

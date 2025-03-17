@@ -145,14 +145,14 @@ export default function Page({ params }) {
                         <TableCell>Location</TableCell>
                         <TableCell>{meeting.eventDetails.location.status}</TableCell>
                       </TableRow>
-                      <TableRow>
+                      {/* <TableRow>
                         <TableCell>Join URL</TableCell>
                         <TableCell>
                           <a href={meeting.eventDetails.location.join_url} target="_blank" rel="noopener noreferrer">
                             Join URL
                           </a>
                         </TableCell>
-                      </TableRow>
+                      </TableRow> */}
                       <TableRow>
                         <TableCell>Reschedule URL</TableCell>
                         <TableCell>
@@ -177,11 +177,11 @@ export default function Page({ params }) {
                   </Table>
                 </TableContainer>
                 <Divider sx={{ marginTop: 2, marginBottom: 2 }} />
-                <Box sx={{ textAlign: "center" }}>
+                {/* <Box sx={{ textAlign: "center" }}>
                   <StyledButton variant="contained" href={meeting.eventDetails.location.join_url} target="_blank">
                     Join Meeting
                   </StyledButton>
-                </Box>
+                </Box> */}
               </CardContent>
             </Card>
           </Grid>
