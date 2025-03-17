@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import RouterLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import Box from '@mui/material/Box';
@@ -14,11 +15,19 @@ import { paths } from '@/paths';
 import { isNavItemActive } from '@/lib/is-nav-item-active';
 import { Logo } from '@/components/core/logo';
 
-import { navItems } from './config';
+import { doctorNavItems, patientNavItems } from './config';
 import { navIcons } from './nav-icons';
 
 export function SideNav(): React.JSX.Element {
   const pathname = usePathname();
+  const [user, setUser] = useState<string | null>(null);
+  useEffect(() => {
+    const userEmail: string | null = sessionStorage.getItem('email');
+    setUser(userEmail);
+  }, []);
+
+  const isDoctor = user === 'doctor@promed.com';
+  const navItems = isDoctor ? doctorNavItems : patientNavItems;
 
   return (
     <Box
@@ -68,7 +77,7 @@ export function SideNav(): React.JSX.Element {
               Workspace
             </Typography>
             <Typography color="inherit" variant="subtitle1">
-              Patient
+              {user === 'doctor@promed.com' ? 'Doctor' : 'Patient'}
             </Typography>
           </Box>
           <CaretUpDownIcon />

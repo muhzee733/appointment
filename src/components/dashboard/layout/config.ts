@@ -1,8 +1,13 @@
 import type { NavItemConfig } from '@/types/nav';
-import { paths } from '@/paths';
 
-export const navItems = [
-  { key: 'overview', title: 'Overview', href: paths.dashboard.overview, icon: 'chart-pie' },
-  { key: 'chat', title: 'Chat', href: paths.dashboard.chat, icon: 'chart-pie' },
-  { key: 'account', title: 'Account', href: paths.dashboard.account, icon: 'user' },
-] satisfies NavItemConfig[];
+export const doctorNavItems: NavItemConfig[] = [
+  { key: 'overview', title: 'Overview', href: '/doctor-dashboard', icon: 'chart-pie' },
+  { key: 'chat', title: 'Chat', href: '/chat', icon: 'ph-chat' },
+  { key: 'chat', title: 'Account', href: '/dashboard/account', icon: 'user' },
+];
+
+export const patientNavItems: NavItemConfig[] = [
+  { key: 'overview', title: 'Overview', href: '/dashboard', icon: 'chart-pie' },
+  { key: 'chat', title: 'Chat', href: '/chat', icon: 'ph-chat' },
+  { key: 'chat', title: 'Account', href: '/dashboard/account', icon: 'user' },
+];

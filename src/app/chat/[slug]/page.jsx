@@ -1,10 +1,9 @@
-'use client';
+'use client'
 
-import { useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Box, Button, CircularProgress, TextField, Typography } from '@mui/material';
+import React, { useEffect, useRef, useState } from 'react';
+import { Box, Button, CircularProgress, TextField, Typography, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import { addDoc, collection, doc, getDoc, onSnapshot, orderBy, query } from 'firebase/firestore';
-
+import { useSearchParams } from 'next/navigation';
 import { db } from '../../../../firebase';
 
 const ChatPage = ({ params }) => {
@@ -19,6 +18,36 @@ const ChatPage = ({ params }) => {
   const [messagesLoading, setMessagesLoading] = useState(true);
   const [videoLoading, setVideoLoading] = useState(false);
   const scrollRef = useRef(null);
+  const [isChatEnded, setIsChatEnded] = useState(false);
+  const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
+
+  const handleEndChatClick = () => {
+    setOpenConfirmationDialog(true);
+  };
+
+  const handleConfirmEndChat = () => {
+    setIsChatEnded(true);
+    setOpenConfirmationDialog(false);
+
+    const messageData = {
+      text: `${user.includes('doctor') ? 'Doctor' : 'Patient'} has ended the chat.`,
+      sender: 'System',
+      senderEmail: user,
+      timestamp: new Date(),
+    };
+
+    addDoc(collection(db, 'chats', slug, 'messages'), messageData)
+      .then(() => {
+        console.log('Chat end message added');
+      })
+      .catch((error) => {
+        console.error('Error adding chat end message:', error);
+      });
+  };
+
+  const handleCancelEndChat = () => {
+    setOpenConfirmationDialog(false);
+  };
 
   useEffect(() => {
     const userEmail = sessionStorage.getItem('email');
@@ -29,7 +58,6 @@ const ChatPage = ({ params }) => {
     }
   }, []);
 
-  // Fetch messages in real-time
   useEffect(() => {
     const messagesRef = collection(db, 'chats', slug, 'messages');
     const q = query(messagesRef, orderBy('timestamp'));
@@ -43,7 +71,6 @@ const ChatPage = ({ params }) => {
       setMessages(messageList);
       setMessagesLoading(false);
 
-      // Auto-scroll to the latest message
       setTimeout(() => {
         if (scrollRef.current) {
           scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -51,29 +78,26 @@ const ChatPage = ({ params }) => {
       }, 100);
     });
 
-    return () => unsubscribe(); // Cleanup listener on unmount
+    return () => unsubscribe();
   }, [slug]);
 
   const sendMessage = async () => {
-    if (newMessage.trim()) {
+    if (newMessage.trim() && !isChatEnded) {
       setLoading(true);
       const messageData = {
         text: newMessage,
         sender: user.includes('doctor') ? 'Doctor' : 'Patient',
         senderEmail: user,
-        patientEmail: email, // Store patient info
+        patientEmail: email,
         timestamp: new Date(),
       };
 
       try {
-        // Add message to chat
         await addDoc(collection(db, 'chats', slug, 'messages'), messageData);
 
-        // Create notification in 'notifications' collection
         await addDoc(collection(db, 'notifications'), {
           type: 'new_message',
           appointment_id: slug,
-          message: `${messageData.sender} sent a new message.`,
           senderEmail: user,
           receiverEmail: user.includes('doctor') ? email : slug,
           timestamp: new Date(),
@@ -88,7 +112,6 @@ const ChatPage = ({ params }) => {
     }
   };
 
-  // Function to send video meeting link
   const sendVideoLink = async () => {
     setVideoLoading(true);
 
@@ -101,11 +124,10 @@ const ChatPage = ({ params }) => {
         const meetingLink = meetingData.eventDetails?.location?.join_url;
 
         if (meetingLink) {
-          // Send meeting link as a message
           await addDoc(collection(db, 'chats', slug, 'messages'), {
             text: `Click here to join the meeting: ${meetingLink}`,
-            isLink: true, // Custom flag to detect links in UI
-            linkUrl: meetingLink, // Store link separately for JSX rendering
+            isLink: true,
+            linkUrl: meetingLink,
             sender: user.includes('doctor') ? 'Doctor' : 'System',
             senderEmail: user,
             timestamp: new Date(),
@@ -123,27 +145,34 @@ const ChatPage = ({ params }) => {
     setVideoLoading(false);
   };
 
+  function formatTimestamp(timestamp) {
+    const milliseconds = timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000;
+    const date = new Date(milliseconds);
+    return date.toLocaleTimeString();
+  }
+
   return (
     <Box sx={{ padding: 3, display: 'flex', flexDirection: 'column', height: '90vh' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Typography variant="h5">Chat Room</Typography>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'end', gap: '20px' }}>
-          <div>
-            <b>Patient Name:</b> <span>{name}</span>
+        {user === 'doctor@promed.com' ? (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'end', gap: '20px' }}>
+            <div>
+              <b>Patient Name:</b> <span>{name}</span>
+            </div>
+            <div>
+              <b>Patient Email:</b> <span>{email}</span>
+            </div>
           </div>
-          <div>
-            <b>Patient Email:</b> <span>{email}</span>
-          </div>
-        </div>
+        ) : null}
       </Box>
 
-      {/* Chat Messages Display */}
       <Box
         ref={scrollRef}
         sx={{
           flexGrow: 1,
           display: 'flex',
-          flexDirection: 'column-reverse',
+          flexDirection: 'column',
           marginBottom: 2,
           maxHeight: '70vh',
           overflowY: 'auto',
@@ -165,48 +194,83 @@ const ChatPage = ({ params }) => {
             <Box
               key={index}
               sx={{
-                margin: '10px 0',
-                textAlign: msg.senderEmail === user ? 'right' : 'left',
-                backgroundColor: msg.senderEmail === user ? '#DCF8C6' : '#EAEAEA',
-                padding: '10px',
-                borderRadius: '8px',
-                maxWidth: '70%',
-                alignSelf: msg.senderEmail === user ? 'flex-end' : 'flex-start',
+                display: 'flex',
+                flexDirection: msg.senderEmail === user ? 'row-reverse' : 'row',
+                alignItems: 'center',
+                gap: '10px',
               }}
             >
-              {msg.isLink ? (
-                <Typography variant="body2">
-                  <strong>{msg.sender}:</strong>{' '}
-                  <a href={msg.linkUrl} target="_blank" rel="noopener noreferrer">
-                    Click here to join the meeting
-                  </a>
-                </Typography>
-              ) : (
-                <Typography variant="body2">
-                  <strong>{msg.sender}:</strong> {msg.text}
-                </Typography>
-              )}
+              <Box
+                sx={{
+                  margin: '10px 0',
+                  textAlign: msg.senderEmail === user ? 'right' : 'left',
+                  backgroundColor: msg.senderEmail === user ? '#DCF8C6' : '#EAEAEA',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  maxWidth: '70%',
+                  alignSelf: msg.senderEmail === user ? 'flex-end' : 'flex-start',
+                }}
+              >
+                {msg.isLink ? (
+                  <Typography variant="body2">
+                    <a href={msg.linkUrl} target="_blank" rel="noopener noreferrer">
+                      Click here to join the meeting
+                    </a>
+                  </Typography>
+                ) : (
+                  <Typography variant="body2">{msg.text}</Typography>
+                )}
+              </Box>
+
+              <Typography variant="caption" sx={{ marginTop: '5px', textAlign: msg.senderEmail === user ? 'right' : 'left' }}>
+                {formatTimestamp(msg.timestamp)}
+              </Typography>
             </Box>
           ))
         )}
       </Box>
 
-      {/* Message Input */}
-      <TextField
-        label="Type a message"
-        variant="outlined"
-        fullWidth
-        value={newMessage}
-        onChange={(e) => setNewMessage(e.target.value)}
-      />
-      <Box sx={{ display: 'flex', marginTop: 2 }}>
-        <Button variant="contained" onClick={sendMessage} sx={{ marginRight: 1 }} disabled={loading}>
-          {loading ? <CircularProgress size={24} color="inherit" /> : 'Send'}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <TextField
+          label="Type a message"
+          variant="outlined"
+          fullWidth
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          style={{
+            width: user === 'doctor@promed.com' ? '75%' : '100%',
+          }}
+          disabled={isChatEnded}
+        />
+        {user === 'doctor@promed.com' && !isChatEnded && (
+          <Button variant="contained" color="secondary" onClick={sendVideoLink} disabled={videoLoading || isChatEnded}>
+            {videoLoading ? <CircularProgress size={24} /> : 'Send Video Link'}
+          </Button>
+        )}
+        <Button variant="contained" color="primary" onClick={sendMessage} disabled={loading || isChatEnded}>
+          {loading ? <CircularProgress size={24} /> : 'Send'}
         </Button>
-        <Button variant="contained" onClick={sendVideoLink} disabled={videoLoading}>
-          {videoLoading ? <CircularProgress size={24} color="inherit" /> : 'Video Link'}
+        <Button variant="contained" color="error" onClick={handleEndChatClick} disabled={isChatEnded}>
+          End Chat
         </Button>
-      </Box>
+      </div>
+
+      <Dialog open={openConfirmationDialog} onClose={handleCancelEndChat}>
+        <DialogTitle>Are you sure you want to end the chat?</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            Ending the chat will notify both parties and no further messages can be sent.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelEndChat} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmEndChat} color="secondary">
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
