@@ -1,9 +1,20 @@
-'use client'
+'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Button, CircularProgress, TextField, Typography, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
-import { addDoc, collection, doc, getDoc, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { useSearchParams } from 'next/navigation';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { addDoc, collection, doc, getDoc, onSnapshot, orderBy, query } from 'firebase/firestore';
+
 import { db } from '../../../../firebase';
 
 const ChatPage = ({ params }) => {
@@ -23,26 +34,6 @@ const ChatPage = ({ params }) => {
 
   const handleEndChatClick = () => {
     setOpenConfirmationDialog(true);
-  };
-
-  const handleConfirmEndChat = () => {
-    setIsChatEnded(true);
-    setOpenConfirmationDialog(false);
-
-    const messageData = {
-      text: `${user.includes('doctor') ? 'Doctor' : 'Patient'} has ended the chat.`,
-      sender: 'System',
-      senderEmail: user,
-      timestamp: new Date(),
-    };
-
-    addDoc(collection(db, 'chats', slug, 'messages'), messageData)
-      .then(() => {
-        console.log('Chat end message added');
-      })
-      .catch((error) => {
-        console.error('Error adding chat end message:', error);
-      });
   };
 
   const handleCancelEndChat = () => {
@@ -222,7 +213,10 @@ const ChatPage = ({ params }) => {
                 )}
               </Box>
 
-              <Typography variant="caption" sx={{ marginTop: '5px', textAlign: msg.senderEmail === user ? 'right' : 'left' }}>
+              <Typography
+                variant="caption"
+                sx={{ marginTop: '5px', textAlign: msg.senderEmail === user ? 'right' : 'left' }}
+              >
                 {formatTimestamp(msg.timestamp)}
               </Typography>
             </Box>
@@ -242,35 +236,28 @@ const ChatPage = ({ params }) => {
           }}
           disabled={isChatEnded}
         />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={sendMessage}
+          disabled={loading || isChatEnded}
+          style={{ height: '56px' }}
+        >
+          {loading ? <CircularProgress size={24} /> : 'Send'}
+        </Button>
+
         {user === 'doctor@promed.com' && !isChatEnded && (
-          <Button variant="contained" color="secondary" onClick={sendVideoLink} disabled={videoLoading || isChatEnded}>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={sendVideoLink}
+            disabled={videoLoading || isChatEnded}
+            style={{ height: '56px' }}
+          >
             {videoLoading ? <CircularProgress size={24} /> : 'Send Video Link'}
           </Button>
         )}
-        <Button variant="contained" color="primary" onClick={sendMessage} disabled={loading || isChatEnded}>
-          {loading ? <CircularProgress size={24} /> : 'Send'}
-        </Button>
-        <Button variant="contained" color="error" onClick={handleEndChatClick} disabled={isChatEnded}>
-          End Chat
-        </Button>
       </div>
-
-      <Dialog open={openConfirmationDialog} onClose={handleCancelEndChat}>
-        <DialogTitle>Are you sure you want to end the chat?</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2">
-            Ending the chat will notify both parties and no further messages can be sent.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelEndChat} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleConfirmEndChat} color="secondary">
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };
