@@ -41,7 +41,6 @@ export async function POST(req) {
         name:name,
         timezone: timezone,
         country: "Australia",
-        preQuestions:[]
       });
     }
 

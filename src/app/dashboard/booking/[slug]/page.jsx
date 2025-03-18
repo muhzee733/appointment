@@ -1,28 +1,29 @@
-"use client";
+'use client';
 
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../../../../firebase";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+import Head from 'next/head';
 import {
-  Grid,
+  Box,
+  Button,
   Card,
   CardContent,
   CardHeader,
-  Typography,
-  Box,
-  Divider,
   CircularProgress,
-  Button,
+  Divider,
+  Grid,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-} from "@mui/material";
-import { styled } from "@mui/system";
-import Head from "next/head";  // Import the Head component
+  Typography,
+} from '@mui/material';
+import { styled } from '@mui/system';
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+
+import { db } from '../../../../../firebase';
 
 const formatTimestamp = (timestamp) => {
   const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
@@ -30,34 +31,51 @@ const formatTimestamp = (timestamp) => {
 };
 
 const StyledButton = styled(Button)({
-  backgroundColor: "#007bff",
-  color: "white",
-  padding: "10px 20px",
-  borderRadius: "5px",
-  "&:hover": {
-    backgroundColor: "#0056b3",
+  backgroundColor: '#007bff',
+  color: 'white',
+  padding: '10px 20px',
+  borderRadius: '5px',
+  '&:hover': {
+    backgroundColor: '#0056b3',
   },
 });
 
 export default function Page({ params }) {
   const { slug } = params;
   const [meeting, setMeeting] = useState(null);
+  const [userPreQuestions, setUserPreQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchMeeting = async () => {
       try {
-        const meetingRef = doc(db, "meetings", slug);
-        const docSnap = await getDoc(meetingRef);
+        const isAuth = document.cookie.split('; ').find((row) => row.startsWith('isAuth='));
+        const userEmail = isAuth ? decodeURIComponent(isAuth.split('=')[1]) : null;
+        const meetingRef = doc(db, 'meetings', slug);
+        const meetingDoc = await getDoc(meetingRef);
 
-        if (docSnap.exists()) {
-          setMeeting({ id: docSnap.id, ...docSnap.data() });
+        if (!meetingDoc.exists()) {
+          setError('Meeting not found.');
+          return;
+        }
+
+        setMeeting({ id: meetingDoc.id, ...meetingDoc.data() });
+
+        // Fetch user details using the logged-in email
+        const userRef = collection(db, 'users');
+        const userQuery = query(userRef, where('email', '==', userEmail));
+        const userSnapshot = await getDocs(userQuery);
+
+        if (!userSnapshot.empty) {
+          const userData = userSnapshot.docs[0].data();
+          console.log(userData);
+          setUserPreQuestions(userData.preQuestion || []);
         } else {
-          setError("Meeting not found.");
+          setError('User not found.');
         }
       } catch (error) {
-        setError("Error fetching meeting data.");
+        setError('Error fetching data.');
       } finally {
         setLoading(false);
       }
@@ -68,7 +86,7 @@ export default function Page({ params }) {
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh" }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
         <CircularProgress />
       </Box>
     );
@@ -76,7 +94,7 @@ export default function Page({ params }) {
 
   if (error) {
     return (
-      <Grid container spacing={2} justifyContent="center" sx={{ marginTop: "20px" }}>
+      <Grid container spacing={2} justifyContent="center" sx={{ marginTop: '20px' }}>
         <Grid item xs={12} sm={8} md={6}>
           <Card>
             <CardHeader title="Error" />
@@ -93,8 +111,11 @@ export default function Page({ params }) {
     <>
       {/* Add dynamic title meta tag */}
       <Head>
-        <title>{meeting ? `Meeting Details - ${meeting.inviteeName}` : "Meeting Details"}</title>
-        <meta name="description" content="Details of the scheduled meeting, including patient information, event times, and rescheduling options." />
+        <title>{meeting ? `Meeting Details - ${meeting.inviteeName}` : 'Meeting Details'}</title>
+        <meta
+          name="description"
+          content="Details of the scheduled meeting, including patient information, event times, and rescheduling options."
+        />
         <meta name="keywords" content="meeting, patient, event, schedule, reschedule" />
       </Head>
 
@@ -102,7 +123,7 @@ export default function Page({ params }) {
         {meeting ? (
           <Grid item xs={12} sm={10} md={12}>
             <Card>
-              <CardHeader title="Meeting Details" sx={{ backgroundColor: "#121621", color: "white" }} />
+              <CardHeader title="Meeting Details" sx={{ backgroundColor: '#121621', color: 'white' }} />
               <CardContent>
                 <TableContainer component={Paper}>
                   <Table>
@@ -145,14 +166,6 @@ export default function Page({ params }) {
                         <TableCell>Location</TableCell>
                         <TableCell>{meeting.eventDetails.location.status}</TableCell>
                       </TableRow>
-                      {/* <TableRow>
-                        <TableCell>Join URL</TableCell>
-                        <TableCell>
-                          <a href={meeting.eventDetails.location.join_url} target="_blank" rel="noopener noreferrer">
-                            Join URL
-                          </a>
-                        </TableCell>
-                      </TableRow> */}
                       <TableRow>
                         <TableCell>Reschedule URL</TableCell>
                         <TableCell>
@@ -176,19 +189,38 @@ export default function Page({ params }) {
                     </TableBody>
                   </Table>
                 </TableContainer>
-                <Divider sx={{ marginTop: 2, marginBottom: 2 }} />
-                {/* <Box sx={{ textAlign: "center" }}>
-                  <StyledButton variant="contained" href={meeting.eventDetails.location.join_url} target="_blank">
-                    Join Meeting
-                  </StyledButton>
-                </Box> */}
+                {/* Render pre-questions */}
+                {userPreQuestions.length > 0 && (
+                  <Card sx={{ marginTop: '20px' }}>
+                    <CardHeader title="Pre-Questions" sx={{ backgroundColor: '#f5f5f5' }} />
+                    <CardContent>
+                      <TableContainer component={Paper}>
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Question</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {userPreQuestions.map((qa, index) => (
+                              <TableRow key={index}>
+                                <TableCell>{`Q: ${qa.question}`}</TableCell>
+                                <TableCell>{`A: ${qa.answer}`}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </CardContent>
+                  </Card>
+                )}
               </CardContent>
             </Card>
           </Grid>
         ) : (
           <Grid item xs={12} sm={10} md={8}>
             <Card>
-              <CardHeader title="Meeting Not Found" sx={{ backgroundColor: "#f5f5f5" }} />
+              <CardHeader title="Meeting Not Found" sx={{ backgroundColor: '#f5f5f5' }} />
               <CardContent>
                 <Typography>No meeting found with the provided ID.</Typography>
               </CardContent>
