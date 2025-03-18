@@ -39,11 +39,9 @@ export async function POST(req) {
         password: '',
         createdAt: new Date(),
         name:name,
-        phoneNumber:'',
-        state:"",
-        city:"",
         timezone: timezone,
         country: "Australia",
+        preQuestions:[]
       });
     }
 

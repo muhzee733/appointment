@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Grid from '@mui/material/Unstable_Grid2';
-import { collection, onSnapshot, query } from 'firebase/firestore';
+import { collection, onSnapshot, query, getDocs, where, doc, updateDoc } from 'firebase/firestore';
 import LatestOrders from '@/components/dashboard/overview/latest-orders';
 
 import { db } from '../../../firebase';
@@ -25,6 +25,30 @@ function Page() {
 
     const meetingsRef = collection(db, 'meetings');
     const notificationsRef = collection(db, 'notifications');
+    const usersRef = collection(db, 'users');
+
+    // Check if preQuestion is empty in user document
+    const checkAndUpdateUser = async () => {
+      const userQuery = query(usersRef, where('email', '==', email));
+      const userSnapshot = await getDocs(userQuery);
+
+      if (!userSnapshot.empty) {
+        const userDoc = userSnapshot.docs[0]; 
+        const userData = userDoc.data();
+
+        if (!userData.preQuestion || userData.preQuestion.length === 0) {
+          const storedAnswers = JSON.parse(sessionStorage.getItem('userAnswers')) || [];
+          if (storedAnswers.length > 0) {
+            await updateDoc(doc(db, 'users', userDoc.id), {
+              preQuestion: storedAnswers
+            });
+            console.log('User preQuestion updated with session answers.');
+          }
+        }
+      }
+    };
+
+    checkAndUpdateUser();
 
     const meetingsQuery = query(meetingsRef);
     const unsubscribeMeetings = onSnapshot(meetingsQuery, (snapshot) => {
@@ -61,7 +85,7 @@ function Page() {
     return () => {
       unsubscribeMeetings();
       unsubscribeNotifications();
-      clearTimeout(autoCloseTimer); 
+      clearTimeout(autoCloseTimer);
     };
   }, []);
 
@@ -76,7 +100,7 @@ function Page() {
           <Alert
             severity="info"
             sx={{ mb: 2 }}
-            onClose={handleCloseNotification} // Close button functionality
+            onClose={handleCloseNotification}
           >
             <AlertTitle>New Notification</AlertTitle>
             You have a new unread Message.
