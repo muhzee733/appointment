@@ -39,5 +39,5 @@ export function middleware(req) {
 
 // Define protected routes for the matcher
 export const config = {
-  matcher: ['/dashboard/:path*', '/profile/:path*', '/settings/:path*', '/chat'],
+  matcher: ['/dashboard/:path*','/doctor-dashboard/:path*', '/profile/:path*', '/settings/:path*', '/chat'],
 };
