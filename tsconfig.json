@@ -23,6 +23,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/auth/sign-in-form.jsx", "src/components/auth/auth-guard.jsx", "src/components/auth/withAuth.js", "src/app/dashboard/page.jsx", "src/components/dashboard/overview/latest-orders.jsx", "src/app/dashboard/account/page.jsx", "src/components/dashboard/account/account-info.jsx", "src/components/dashboard/account/account-details-form.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/auth/sign-in-form.jsx", "src/components/auth/auth-guard.jsx", "src/components/auth/withAuth.js", "src/app/dashboard/page.jsx", "src/components/dashboard/overview/latest-orders.jsx", "src/app/dashboard/account/page.jsx", "src/components/dashboard/account/account-info.jsx", "src/components/dashboard/account/account-details-form.jsx", "src/components/auth/reset-password-form.jsx"],
   "exclude": ["node_modules"]
 }

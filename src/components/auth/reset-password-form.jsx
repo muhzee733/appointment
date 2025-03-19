@@ -58,7 +58,8 @@ export function ResetPasswordForm() {
 
         // Ensure the email from Firestore matches the input email
         if (userEmail === values.email) {
-          const resetToken = uuidv4(); // Generate a reset token using uuid
+          const resetToken = uuidv4();
+          console.log(resetToken, 'resetToken') // Generate a reset token using uuid
           const userRef = doc(db, 'users', userDoc.id); // Get the user document reference
 
           // Update the user document with reset token and expiration time
@@ -72,13 +73,13 @@ export function ResetPasswordForm() {
 
           // Send the reset token email using EmailJS
           const result = await emailjs.send(
-            'service_736gl5l', // Replace with your EmailJS service ID
-            'service_736gl5l', // Replace with your EmailJS template ID
+            'service_iif47nx', // Replace with your EmailJS service ID
+            'template_u5j6kn7', // Replace with your EmailJS template ID
             {
               email: values.email,
               resetToken: resetToken,
             },
-            'XFFIi19Yw_G3o84R1' // Replace with your EmailJS user ID
+            'ZSEGYSVUm3xEaizUH' // Replace with your EmailJS user ID
           );
           console.log('Email sent successfully:', result);
         }
