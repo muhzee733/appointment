@@ -69,6 +69,8 @@ function Page() {
     setOpenNotification(false);
   };
 
+  console.log(meetings, 'meetings')
+
   return (
     <Grid container spacing={3}>
       <Grid lg={12} md={12} xs={12}>

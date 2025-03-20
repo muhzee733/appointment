@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import Link from 'next/link'; // Link import
+import Link from 'next/link';
 import {
   Box,
   Button,
@@ -47,6 +47,7 @@ export default function Page({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mounted, setMounted] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -61,7 +62,8 @@ export default function Page({ params }) {
         const docSnap = await getDoc(meetingRef);
 
         if (docSnap.exists()) {
-          setMeeting({ id: docSnap.id, ...docSnap.data() });
+          const meetingData = { id: docSnap.id, ...docSnap.data() };
+          setMeeting(meetingData);
         } else {
           setError('Meeting not found.');
         }
@@ -168,17 +170,27 @@ export default function Page({ params }) {
                 </TableContainer>
                 <Divider sx={{ marginTop: 2, marginBottom: 2 }} />
                 <Box sx={{ textAlign: 'center' }}>
-                  <Link
-                    href={{
-                      pathname: `/chat/${meeting.id}`,
-                      query: { name: meeting.inviteeName, email: meeting.inviteeEmail },
-                    }}
-                    passHref
-                  >
-                    <StyledButton variant="contained" sx={{ marginTop: 2 }}>
-                      Chat Now
-                    </StyledButton>
-                  </Link>
+                  {meeting.status === 'active' && !isExpired ? (
+                    <Link
+                      href={{
+                        pathname: `/chat/${meeting.id}`,
+                        query: { name: meeting.inviteeName, email: meeting.inviteeEmail },
+                      }}
+                      passHref
+                    >
+                      <StyledButton variant="contained" sx={{ marginTop: 2 }}>
+                        Chat Now
+                      </StyledButton>
+                    </Link>
+                  ) : meeting.status !== 'active' ? (
+                    <Typography variant="body1" sx={{ color: 'red' }}>
+                      This meeting is not active.
+                    </Typography>
+                  ) : (
+                    <Typography variant="body1" sx={{ color: 'red' }}>
+                      This meeting has expired.
+                    </Typography>
+                  )}
                 </Box>
               </CardContent>
             </Card>

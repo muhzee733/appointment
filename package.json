@@ -33,6 +33,7 @@
     "@phosphor-icons/react": "2.1.6",
     "apexcharts": "3.49.2",
     "axios": "^1.8.3",
+    "bootstrap": "^5.3.3",
     "cookies-next": "^5.1.0",
     "date-fns": "^3.6.0",
     "dayjs": "1.11.11",
@@ -45,6 +46,7 @@
     "react-apexcharts": "1.4.1",
     "react-dom": "18.3.1",
     "react-hook-form": "7.52.0",
+    "reactstrap": "^9.2.3",
     "uuid": "^11.1.0",
     "zod": "3.23.8"
   },

@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -15,10 +13,12 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import { isAfter, parseISO } from 'date-fns';
 
 const statusMap = {
-  active: { label: 'Active', color: 'success' },
+  active: { label: 'Active', color: 'info' },
   canceled: { label: 'Canceled', color: 'error' },
+  completed: { label: 'Completed', color: 'success' },
   expired: { label: 'Expired', color: 'warning' },
 };
 
@@ -31,6 +31,7 @@ function formatTimestamp(timestamp) {
 function LatestOrders({ meetings, loading, error }) {
   // State to store email
   const [email, setEmail] = useState('');
+  const [updatedMeetings, setUpdatedMeetings] = useState(meetings); // Track updated meetings
 
   // Fetch email from sessionStorage when component mounts
   useEffect(() => {
@@ -39,6 +40,37 @@ function LatestOrders({ meetings, loading, error }) {
       setEmail(emailFromStorage);
     }
   }, []);
+
+  useEffect(() => {
+    const checkMeetingStatus = () => {
+      const now = new Date();
+
+      const updated = meetings.map((meeting) => {
+        const meetingTime = parseISO(meeting.createdAt.toDate().toISOString());
+        console.log(meetingTime, now)
+
+        if (meeting.status === 'active' && isAfter(now, meetingTime)) {
+          return { ...meeting, status: 'expired' };
+        }
+
+        return meeting;
+      });
+
+      const sortedMeetings = updated.sort((a, b) => {
+        const aTime = parseISO(a.createdAt.toDate().toISOString());
+        const bTime = parseISO(b.createdAt.toDate().toISOString());
+        return bTime - aTime;
+      });
+
+      setUpdatedMeetings(sortedMeetings);
+    };
+
+    checkMeetingStatus();
+
+    const interval = setInterval(checkMeetingStatus, 60000);
+
+    return () => clearInterval(interval);
+  }, [meetings]);
 
   return (
     <Card sx={{ padding: 2 }}>
@@ -70,14 +102,14 @@ function LatestOrders({ meetings, loading, error }) {
                   <p>Error loading meetings.</p>
                 </TableCell>
               </TableRow>
-            ) : meetings.length === 0 ? (
+            ) : updatedMeetings.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} sx={{ textAlign: 'center' }}>
                   <p>You don't have any appointments. First, book an appointment.</p>
                 </TableCell>
               </TableRow>
             ) : (
-              meetings.map((meeting) => {
+              updatedMeetings.map((meeting) => {
                 const { label, color } = statusMap[meeting.status] || { label: 'Unknown', color: 'default' };
                 const formattedTime = formatTimestamp(meeting.createdAt);
                 return (
@@ -88,11 +120,23 @@ function LatestOrders({ meetings, loading, error }) {
                       <Chip color={color} label={label} size="small" />
                     </TableCell>
                     <TableCell>{formattedTime}</TableCell>
-                    {email === 'doctor@promed.com' ? (
+                    {email === 'doctor@promed.com' && meeting.status === 'expired' ? (
+                      <TableCell>
+                        <Button variant="outlined" disabled>
+                          View Details
+                        </Button>
+                      </TableCell>
+                    ) : email === 'doctor@promed.com' ? (
                       <TableCell>
                         <Link href={`/doctor-dashboard/booking/${meeting.id}`}>
                           <Button variant="outlined">View Details</Button>
                         </Link>
+                      </TableCell>
+                    ) : meeting.status === 'expired' ? (
+                      <TableCell>
+                        <Button variant="outlined" disabled>
+                          View Details
+                        </Button>
                       </TableCell>
                     ) : (
                       <TableCell>

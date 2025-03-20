@@ -12,14 +12,14 @@ export async function POST(req) {
     // Store meeting details
     await addDoc(collection(db, 'meetings'), {
       eventType: event,
-      createdAt: new Date(created_at),
+      createdAt: created_at,
       inviteeEmail: email,
       inviteeName: name,
       questionsAndAnswers: questions_and_answers,
       eventDetails: {
         name: eventName,
-        startTime: new Date(start_time),
-        endTime: new Date(end_time),
+        startTime: start_time,
+        endTime: end_time,
         location: location,
       },
       cancelUrl: cancel_url,
@@ -38,9 +38,9 @@ export async function POST(req) {
         email: email,
         password: '',
         createdAt: new Date(),
-        name:name,
+        name: name,
         timezone: timezone,
-        country: "Australia",
+        country: 'Australia',
       });
     }
 

@@ -8,7 +8,6 @@ import LatestOrders from '@/components/dashboard/overview/latest-orders';
 import { TasksProgress } from '@/components/dashboard/overview/tasks-progress';
 import { TotalCustomers } from '@/components/dashboard/overview/total-customers';
 import { TotalProfit } from '@/components/dashboard/overview/total-profit';
-import Appointments from '@/components/doctor/appointments/appointments';
 import Appointment from '@/components/doctor/overview/appointment';
 
 import { db } from '../../../firebase';
@@ -32,7 +31,6 @@ const Page = () => {
             id: doc.id,
             ...doc.data(),
           }));
-
           setMeetings(meetingsData);
         }
       } catch (err) {

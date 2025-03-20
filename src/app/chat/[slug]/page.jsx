@@ -13,7 +13,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { addDoc, collection, doc, getDoc, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, onSnapshot, orderBy, query, updateDoc  } from 'firebase/firestore';
 
 import { db } from '../../../../firebase';
 
@@ -32,13 +32,34 @@ const ChatPage = ({ params }) => {
   const [isChatEnded, setIsChatEnded] = useState(false);
   const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
 
-  const handleEndChatClick = () => {
+  const handleEndMeeting = async () => {
     setOpenConfirmationDialog(true);
   };
-
   const handleCancelEndChat = () => {
     setOpenConfirmationDialog(false);
   };
+  const handleConfirmEndMeeting = async () => {
+    try {
+      const meetingRef = doc(db, 'meetings', slug);
+      await updateDoc(meetingRef, { status: 'completed' });
+
+      console.log('Meeting status updated to completed.');
+    } catch (error) {
+      console.error('Error updating meeting status:', error);
+    }
+    setOpenConfirmationDialog(false);
+  };
+  useEffect(() => {
+    const meetingRef = doc(db, "meetings", slug);
+
+    const unsubscribe = onSnapshot(meetingRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setIsChatEnded(docSnap.data().status);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [slug]);
 
   useEffect(() => {
     const userEmail = sessionStorage.getItem('email');
@@ -257,7 +278,31 @@ const ChatPage = ({ params }) => {
             {videoLoading ? <CircularProgress size={24} /> : 'Send Video Link'}
           </Button>
         )}
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleEndMeeting}
+          disabled={isChatEnded}
+          style={{ height: '56px' }}
+        >
+          End Meeting
+        </Button>
       </div>
+
+      <Dialog open={openConfirmationDialog} onClose={handleCancelEndChat}>
+        <DialogTitle>Confirm End Meeting</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to end the meeting?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelEndChat} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmEndMeeting} color="secondary" autoFocus>
+            End Meeting
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
