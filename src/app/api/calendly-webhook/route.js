@@ -1,4 +1,4 @@
-import { addDoc, collection, getDocs, query, Timestamp, where } from 'firebase/firestore';
+import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 
 import { db } from '../../../../firebase';
 
@@ -9,22 +9,17 @@ export async function POST(req) {
       payload;
     const { created_at, start_time, end_time, location, name: eventName } = scheduled_event;
 
-    // Convert time values to Date objects
-    const createdAt = new Date(created_at); // Convert to Date object
-    const startTime = new Date(start_time); // Convert to Date object
-    const endTime = new Date(end_time); // Convert to Date object
-
     // Store meeting details
     await addDoc(collection(db, 'meetings'), {
       eventType: event,
-      createdAt: Timestamp.fromDate(createdAt), // Store as Firestore Timestamp
+      createdAt: new Date(created_at),
       inviteeEmail: email,
       inviteeName: name,
       questionsAndAnswers: questions_and_answers,
       eventDetails: {
         name: eventName,
-        startTime: Timestamp.fromDate(startTime), // Store as Firestore Timestamp
-        endTime: Timestamp.fromDate(endTime), // Store as Firestore Timestamp
+        startTime: new Date(start_time),
+        endTime: new Date(end_time),
         location: location,
       },
       cancelUrl: cancel_url,
@@ -43,9 +38,9 @@ export async function POST(req) {
         email: email,
         password: '',
         createdAt: new Date(),
-        name: name,
+        name:name,
         timezone: timezone,
-        country: 'Australia',
+        country: "Australia",
       });
     }
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -13,7 +13,6 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { Timestamp } from 'firebase/firestore';
 
 const statusMap = {
   active: { label: 'Active', color: 'info' },
@@ -24,16 +23,19 @@ const statusMap = {
 
 // Format timestamp for display
 function formatTimestamp(timestamp) {
-  const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
-  return date.toLocaleString();
+  if (timestamp && timestamp.seconds) {
+    // Create a new Date object from Firestore timestamp (seconds + nanoseconds)
+    const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+    return date.toLocaleString(); // or use toISOString() if you prefer UTC format
+  }
+  return ''; // Return empty if it's not a valid timestamp
 }
 
-function LatestOrders({ meetings, loading, error }) {
-  // State to store email
-  const [email, setEmail] = useState('');
-  const [updatedMeetings, setUpdatedMeetings] = useState(meetings); // Track updated meetings
 
-  // Fetch email from sessionStorage when component mounts
+function LatestOrders({ meetings, loading, error }) {
+  const [email, setEmail] = useState('');
+  const [updatedMeetings, setUpdatedMeetings] = useState(meetings);
+
   useEffect(() => {
     const emailFromStorage = sessionStorage.getItem('email');
     if (emailFromStorage) {
@@ -41,42 +43,79 @@ function LatestOrders({ meetings, loading, error }) {
     }
   }, []);
 
+  // Update meeting status if the meeting time has passed and it's still active
+  const checkMeetingStatus = () => {
+    const now = new Date().getTime();
+    const updated = meetings.map((meeting) => {
+      const meetingTime = new Date(meeting.eventDetails.startTime).getTime();
+      if (meeting.status === 'active' && now > meetingTime) {
+        return { ...meeting, status: 'expired' }; // Mark as expired if time has passed
+      }
+      return meeting;
+    });
+
+    // Sort meetings by createdAt timestamp in descending order (latest first)
+    const sortedMeetings = updated.sort((a, b) => {
+      const aTime = new Date(a.createdAt.seconds * 1000 + a.createdAt.nanoseconds / 1000000).getTime();
+      const bTime = new Date(b.createdAt.seconds * 1000 + b.createdAt.nanoseconds / 1000000).getTime();
+      return bTime - aTime; // Sort descending (latest first)
+    });
+
+    setUpdatedMeetings(sortedMeetings); // Update state with sorted meetings
+  };
+
   useEffect(() => {
-    const checkMeetingStatus = () => {
-      const now = new Date();
+    checkMeetingStatus(); // Initial check on component mount
+    const interval = setInterval(checkMeetingStatus, 60000); // Check every minute
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [meetings]); // Depend on meetings so it updates when meetings change
 
-      const updated = meetings.map((meeting) => {
-        // Check if createdAt is a Firebase Timestamp, then convert to Date
-        const meetingTime =
-          meeting.createdAt instanceof Timestamp ? meeting.createdAt.toDate() : new Date(meeting.createdAt); // If already a Date, use it directly
+  // Memoize meetings to avoid unnecessary recalculations
+  const renderedMeetings = useMemo(() => {
+    return updatedMeetings.map((meeting) => {
+      console.log(meeting.eventDetails.startTime);
 
-        console.log(meeting);
-
-        // Check if the meeting is 'active' and expired based on current time
-        if (meeting.status === 'active' && now > meetingTime) {
-          return { ...meeting, status: 'expired' };
-        }
-
-        return meeting;
-      });
-
-      const sortedMeetings = updated.sort((a, b) => {
-        const aTime = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : new Date(a.createdAt);
-
-        const bTime = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : new Date(b.createdAt);
-
-        return bTime - aTime;
-      });
-
-      setUpdatedMeetings(sortedMeetings);
-    };
-
-    checkMeetingStatus();
-
-    const interval = setInterval(checkMeetingStatus, 60000);
-
-    return () => clearInterval(interval);
-  }, [meetings]);
+      const { label, color } = statusMap[meeting.status] || { label: 'Unknown', color: 'default' };
+      const formattedTime = formatTimestamp(meeting.createdAt);
+      const formattedStartTime = formatTimestamp(meeting.eventDetails.startTime);
+      return (
+        <TableRow hover key={meeting.id}>
+          <TableCell>{formattedTime}</TableCell>
+          <TableCell>{meeting.inviteeName}</TableCell>
+          <TableCell>{meeting.inviteeEmail}</TableCell>
+          <TableCell>
+            <Chip color={color} label={label} size="small" />
+          </TableCell>
+          <TableCell>{formattedStartTime}</TableCell>
+          {email === 'doctor@promed.com' && meeting.status === 'expired' ? (
+            <TableCell>
+              <Button variant="outlined" disabled>
+                View Details
+              </Button>
+            </TableCell>
+          ) : email === 'doctor@promed.com' ? (
+            <TableCell>
+              <Link href={`/doctor-dashboard/booking/${meeting.id}`}>
+                <Button variant="outlined">View Details</Button>
+              </Link>
+            </TableCell>
+          ) : meeting.status === 'expired' ? (
+            <TableCell>
+              <Button variant="outlined" disabled>
+                View Details
+              </Button>
+            </TableCell>
+          ) : (
+            <TableCell>
+              <Link href={`/dashboard/booking/${meeting.id}`}>
+                <Button variant="outlined">View Details</Button>
+              </Link>
+            </TableCell>
+          )}
+        </TableRow>
+      );
+    });
+  }, [updatedMeetings, email]);
 
   return (
     <Card sx={{ padding: 2 }}>
@@ -86,10 +125,11 @@ function LatestOrders({ meetings, loading, error }) {
         <Table sx={{ minWidth: 800 }}>
           <TableHead>
             <TableRow>
+              <TableCell>Created Time</TableCell>
               <TableCell>Patient Name</TableCell>
               <TableCell>Patient Email</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell>Time</TableCell>
+              <TableCell>Meeting Time</TableCell>
               <TableCell>View Details</TableCell>
             </TableRow>
           </TableHead>
@@ -115,45 +155,7 @@ function LatestOrders({ meetings, loading, error }) {
                 </TableCell>
               </TableRow>
             ) : (
-              updatedMeetings.map((meeting) => {
-                const { label, color } = statusMap[meeting.status] || { label: 'Unknown', color: 'default' };
-                const formattedTime = formatTimestamp(meeting.createdAt);
-                return (
-                  <TableRow hover key={meeting.id}>
-                    <TableCell>{meeting.inviteeName}</TableCell>
-                    <TableCell>{meeting.inviteeEmail}</TableCell>
-                    <TableCell>
-                      <Chip color={color} label={label} size="small" />
-                    </TableCell>
-                    <TableCell>{formattedTime}</TableCell>
-                    {email === 'doctor@promed.com' && meeting.status === 'expired' ? (
-                      <TableCell>
-                        <Button variant="outlined" disabled>
-                          View Details
-                        </Button>
-                      </TableCell>
-                    ) : email === 'doctor@promed.com' ? (
-                      <TableCell>
-                        <Link href={`/doctor-dashboard/booking/${meeting.id}`}>
-                          <Button variant="outlined">View Details</Button>
-                        </Link>
-                      </TableCell>
-                    ) : meeting.status === 'expired' ? (
-                      <TableCell>
-                        <Button variant="outlined" disabled>
-                          View Details
-                        </Button>
-                      </TableCell>
-                    ) : (
-                      <TableCell>
-                        <Link href={`/dashboard/booking/${meeting.id}`}>
-                          <Button variant="outlined">View Details</Button>
-                        </Link>
-                      </TableCell>
-                    )}
-                  </TableRow>
-                );
-              })
+              renderedMeetings
             )}
           </TableBody>
         </Table>
