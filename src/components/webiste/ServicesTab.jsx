@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 function MedicalSection() {
   return (
-    <section className="Medical-section">
+    <section className="Medical-section" id="services">
       <div className="wrapper-Medical d-flex align-items-center">
         <div className="container-fluid">
           <div className="row">
@@ -14,7 +14,7 @@ function MedicalSection() {
               <h2 className="head-2">for a better you</h2>
               <p>Frazmedicall is an online medical clinic providing plant medicine care to 100,000+ Australians.</p>
               <p>Get started with a 30-second pre-screening and see if plant medicine could be right for you.</p>
-              <Link href="/preScreen" className="vs-btn">
+              <Link href="/questions" className="vs-btn">
                 Start Questionnaire
               </Link>
               <div className="icons d-flex">

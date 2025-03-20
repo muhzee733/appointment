@@ -3,10 +3,10 @@ import Link from 'next/link';
 
 const CategorySection = () => {
   return (
-    <section className="category-section text-center">
+    <section className="category-section text-center" id="category">
       <div className="container-ct">
         <div className="row">
-          <h2 className="text-center">Who is ProMed for?</h2>
+          <h2 className="text-center" id="about">Who is ProMed for?</h2>
           <p className="pb-2">
             {`Whether you're exploring alternative healthcare choices for the first time or have had extensive experience with holistic medicine, we're here to connect you with highly qualified doctors and nurses who are experienced and specialize in alternative medicine.`}
           </p>
@@ -37,7 +37,7 @@ const CategorySection = () => {
           <p className="text-center py-2">
             Complete our 30-second pre-screening questionnaire to find out if alternative medicine is right for you.
           </p>
-          <Link href="/preScreen" className="vs-btn">
+          <Link href="/questions" className="vs-btn">
             Start Questionnaire
           </Link>
         </div>

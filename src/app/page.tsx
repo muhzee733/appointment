@@ -1,12 +1,12 @@
 import * as React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import ServicesTab from '@/components/webiste/ServicesTab';
-import Category from '@/components/webiste/Category';
-import HowItWork from '@/components/webiste/HowItWork';
-import Faqs from '@/components/webiste/Faqs';
 
 import { config } from '@/config';
+import Category from '@/components/webiste/Category';
+import Faqs from '@/components/webiste/Faqs';
+import HowItWork from '@/components/webiste/HowItWork';
+import ServicesTab from '@/components/webiste/ServicesTab';
 
 import '@/styles/custom.css';
 import '@/styles/style.css';
@@ -50,19 +50,19 @@ export default function Page() {
                         <nav className="main-menu menu-style1">
                           <ul className="burger-menu" style={{ textAlign: 'right' }}>
                             <li className="mega-menu-wrap">
-                              <Link href="/medical-certificate">Home</Link>
+                              <Link href="/">Home</Link>
                             </li>
                             <li className="mega-menu-wrap">
-                              <Link href="/">How it works</Link>
+                              <Link href="#how-it-works">How it works</Link>
                             </li>
                             <li>
-                              <Link href="/pricing">Pricing</Link>
+                              <Link href="#pricing">Pricing</Link>
                             </li>
                             <li>
-                              <Link href="/about">About Us</Link>
+                              <Link href="#about">About Us</Link>
                             </li>
                             <li>
-                              <Link href="/faqs">FAQs</Link>
+                              <Link href="#faqs">FAQs</Link>
                             </li>
                           </ul>
                         </nav>
@@ -91,13 +91,6 @@ export default function Page() {
             <div className="col-lg-12 text-center text-white">
               <div className="text-center mb-5">
                 <img src="/assets/pro-logo.webp" width={230} alt="logo" className="mobile-menu" />
-                {/* <Image
-            src={LogoWhite}
-            alt="Logo"
-            width={230}
-            height={100} // You can specify a height based on your layout requirements
-            style={{ maxWidth: '230px' }} // Optional: handle max width with CSS
-          /> */}
               </div>
               <div className="mb-5">
                 <h4 className="text-white">Get in Touch</h4>

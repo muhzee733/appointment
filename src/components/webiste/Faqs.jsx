@@ -2,7 +2,7 @@ import React from 'react';
 
 const FAQs = () => {
   return (
-    <section className="py-130 faqs">
+    <section className="py-130 faqs" id="faqs">
       <div className="container">
         <div className="row">
           <div className="col-lg-12">

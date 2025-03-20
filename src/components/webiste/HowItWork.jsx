@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const FaqsSection = () => {
   return (
-    <section className="py-130 faqs">
+    <section className="py-130 faqs" id="how-it-works">
       <div className="container">
         <div className="row how">
           <div className="head">
@@ -62,7 +62,7 @@ const FaqsSection = () => {
               </p>
             </div>
           </div>
-          <div className="trans text-center">
+          <div className="trans text-center" id="pricing">
             <h2 className="text-center">Transparent & affordable pricing</h2>
             <Link href="/preScreen" className="vs-btn only">
               Only £59
@@ -154,7 +154,7 @@ const FaqsSection = () => {
                 Ready to get started? Complete our complimentary pre-screening
                 questionnaire to see if you might be suitable.
               </p>
-              <Link href="/preScreen" className="vs-btn">
+              <Link href="/questions" className="vs-btn">
                 Start Questionnaire
               </Link>
             </div>
