@@ -13,7 +13,7 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { isAfter, parseISO } from 'date-fns';
+import { Timestamp } from 'firebase/firestore';
 
 const statusMap = {
   active: { label: 'Active', color: 'info' },
@@ -46,10 +46,14 @@ function LatestOrders({ meetings, loading, error }) {
       const now = new Date();
 
       const updated = meetings.map((meeting) => {
-        const meetingTime = parseISO(meeting.createdAt.toDate().toISOString());
-        console.log(meetingTime, now)
+        // Check if createdAt is a Firebase Timestamp, then convert to Date
+        const meetingTime =
+          meeting.createdAt instanceof Timestamp ? meeting.createdAt.toDate() : new Date(meeting.createdAt); // If already a Date, use it directly
 
-        if (meeting.status === 'active' && isAfter(now, meetingTime)) {
+        console.log(meeting);
+
+        // Check if the meeting is 'active' and expired based on current time
+        if (meeting.status === 'active' && now > meetingTime) {
           return { ...meeting, status: 'expired' };
         }
 
@@ -57,8 +61,10 @@ function LatestOrders({ meetings, loading, error }) {
       });
 
       const sortedMeetings = updated.sort((a, b) => {
-        const aTime = parseISO(a.createdAt.toDate().toISOString());
-        const bTime = parseISO(b.createdAt.toDate().toISOString());
+        const aTime = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : new Date(a.createdAt);
+
+        const bTime = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : new Date(b.createdAt);
+
         return bTime - aTime;
       });
 
