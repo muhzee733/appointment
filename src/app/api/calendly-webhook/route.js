@@ -26,6 +26,7 @@ export async function POST(req) {
       rescheduleUrl: reschedule_url,
       timezone: timezone,
       status: status,
+      endChat: false
     });
 
     // Check if user already exists in the 'users' collection

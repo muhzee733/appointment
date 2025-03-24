@@ -21,7 +21,7 @@ function Appointment({ diff, trend, sx, value }) {
           <Stack direction="row" sx={{ alignItems: 'flex-start', justifyContent: 'space-between' }} spacing={3}>
             <Stack spacing={1}>
               <Typography color="text.secondary" variant="overline">
-                Total Appointments
+                Today Appointments
               </Typography>
               <Typography variant="h4">{value?.length}</Typography>
             </Stack>

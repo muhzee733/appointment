@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
@@ -10,10 +11,11 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Snackbar,
   TextField,
   Typography,
 } from '@mui/material';
-import { addDoc, collection, doc, getDoc, onSnapshot, orderBy, query, updateDoc  } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
 
 import { db } from '../../../../firebase';
 
@@ -29,8 +31,13 @@ const ChatPage = ({ params }) => {
   const [messagesLoading, setMessagesLoading] = useState(true);
   const [videoLoading, setVideoLoading] = useState(false);
   const scrollRef = useRef(null);
-  const [isChatEnded, setIsChatEnded] = useState(false);
   const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  const [status, setStatus] = useState(false);
 
   const handleEndMeeting = async () => {
     setOpenConfirmationDialog(true);
@@ -42,19 +49,24 @@ const ChatPage = ({ params }) => {
     try {
       const meetingRef = doc(db, 'meetings', slug);
       await updateDoc(meetingRef, { status: 'completed' });
-
-      console.log('Meeting status updated to completed.');
+      setSnackbarMessage('Meeting status updated successfully!');
+      setSnackbarSeverity('success');
+      setOpenSnackbar(true);
     } catch (error) {
       console.error('Error updating meeting status:', error);
+      setSnackbarMessage('Error updating meeting status!');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
     }
     setOpenConfirmationDialog(false);
   };
-  useEffect(() => {
-    const meetingRef = doc(db, "meetings", slug);
 
-    const unsubscribe = onSnapshot(meetingRef, (docSnap) => {
-      if (docSnap.exists()) {
-        setIsChatEnded(docSnap.data().status);
+  useEffect(() => {
+    const meetingRef = doc(db, 'meetings', slug);
+    const unsubscribe = onSnapshot(meetingRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const data = docSnapshot.data();
+        setStatus(data.status);
       }
     });
 
@@ -94,7 +106,7 @@ const ChatPage = ({ params }) => {
   }, [slug]);
 
   const sendMessage = async () => {
-    if (newMessage.trim() && !isChatEnded) {
+    if (newMessage.trim()) {
       setLoading(true);
       const messageData = {
         text: newMessage,
@@ -230,16 +242,18 @@ const ChatPage = ({ params }) => {
                     </a>
                   </Typography>
                 ) : (
-                  <Typography variant="body2">{msg.text}</Typography>
+                  <>
+                    <Typography variant="body2">{msg.text}</Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{ marginTop: '5px', textAlign: msg.senderEmail === user ? 'right' : 'left' }}
+                    >
+                      {formatTimestamp(msg.timestamp)}
+                    </Typography>
+                  </>
                 )}
               </Box>
-
-              <Typography
-                variant="caption"
-                sx={{ marginTop: '5px', textAlign: msg.senderEmail === user ? 'right' : 'left' }}
-              >
-                {formatTimestamp(msg.timestamp)}
-              </Typography>
+              <span style={{ fontSize: '12px' }}>{msg.sender}</span>
             </Box>
           ))
         )}
@@ -253,26 +267,26 @@ const ChatPage = ({ params }) => {
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           style={{
-            width: user === 'doctor@promed.com' ? '75%' : '100%',
+            width: user === 'doctor@promed.com' ? '70%' : '100%',
           }}
-          disabled={isChatEnded}
+          disabled={['completed', 'canceled'].includes(status)}
         />
         <Button
           variant="contained"
           color="primary"
           onClick={sendMessage}
-          disabled={loading || isChatEnded}
+          disabled={['completed', 'canceled'].includes(status)}
           style={{ height: '56px' }}
         >
           {loading ? <CircularProgress size={24} /> : 'Send'}
         </Button>
 
-        {user === 'doctor@promed.com' && !isChatEnded && (
+        {user === 'doctor@promed.com' && (
           <Button
             variant="contained"
             color="secondary"
+            disabled={['completed', 'canceled'].includes(status)}
             onClick={sendVideoLink}
-            disabled={videoLoading || isChatEnded}
             style={{ height: '56px' }}
           >
             {videoLoading ? <CircularProgress size={24} /> : 'Send Video Link'}
@@ -282,7 +296,7 @@ const ChatPage = ({ params }) => {
           variant="contained"
           color="secondary"
           onClick={handleEndMeeting}
-          disabled={isChatEnded}
+          disabled={['completed', 'canceled'].includes(status)}
           style={{ height: '56px' }}
         >
           End Meeting
@@ -303,6 +317,16 @@ const ChatPage = ({ params }) => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={() => setOpenSnackbar(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

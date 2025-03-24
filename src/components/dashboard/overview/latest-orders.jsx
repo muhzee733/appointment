@@ -31,7 +31,6 @@ function formatTimestamp(timestamp) {
   return ''; // Return empty if it's not a valid timestamp
 }
 
-
 function LatestOrders({ meetings, loading, error }) {
   const [email, setEmail] = useState('');
   const [updatedMeetings, setUpdatedMeetings] = useState(meetings);
@@ -73,8 +72,6 @@ function LatestOrders({ meetings, loading, error }) {
   // Memoize meetings to avoid unnecessary recalculations
   const renderedMeetings = useMemo(() => {
     return updatedMeetings.map((meeting) => {
-      console.log(meeting.eventDetails.startTime);
-
       const { label, color } = statusMap[meeting.status] || { label: 'Unknown', color: 'default' };
       const formattedTime = formatTimestamp(meeting.createdAt);
       const formattedStartTime = formatTimestamp(meeting.eventDetails.startTime);
@@ -87,7 +84,7 @@ function LatestOrders({ meetings, loading, error }) {
             <Chip color={color} label={label} size="small" />
           </TableCell>
           <TableCell>{formattedStartTime}</TableCell>
-          {email === 'doctor@promed.com' && meeting.status === 'expired' ? (
+          {(email === meeting.status) === 'expired' ? (
             <TableCell>
               <Button variant="outlined" disabled>
                 View Details
@@ -98,12 +95,6 @@ function LatestOrders({ meetings, loading, error }) {
               <Link href={`/doctor-dashboard/booking/${meeting.id}`}>
                 <Button variant="outlined">View Details</Button>
               </Link>
-            </TableCell>
-          ) : meeting.status === 'expired' ? (
-            <TableCell>
-              <Button variant="outlined" disabled>
-                View Details
-              </Button>
             </TableCell>
           ) : (
             <TableCell>

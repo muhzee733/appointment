@@ -30,15 +30,6 @@ const formatTimestamp = (timestamp) => {
   return date.toLocaleString();
 };
 
-const StyledButton = styled(Button)({
-  backgroundColor: '#007bff',
-  color: 'white',
-  padding: '10px 20px',
-  borderRadius: '5px',
-  '&:hover': {
-    backgroundColor: '#0056b3',
-  },
-});
 
 export default function Page({ params }) {
   const { slug } = params;
@@ -69,7 +60,6 @@ export default function Page({ params }) {
 
         if (!userSnapshot.empty) {
           const userData = userSnapshot.docs[0].data();
-          console.log(userData);
           setUserPreQuestions(userData.preQuestion || []);
         } else {
           setError('User not found.');
