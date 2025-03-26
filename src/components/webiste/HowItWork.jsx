@@ -64,7 +64,7 @@ const FaqsSection = () => {
           </div>
           <div className="trans text-center" id="pricing">
             <h2 className="text-center">Transparent & affordable pricing</h2>
-            <Link href="/preScreen" className="vs-btn only">
+            <Link href="/questions" className="vs-btn only">
               Only £59
             </Link>
             <p className="pb-5 pt-4">{`And if your doctor decides alternative medicine isn't the right treatment, you will not be charged!`}</p>
