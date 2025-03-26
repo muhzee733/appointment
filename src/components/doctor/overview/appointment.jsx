@@ -6,13 +6,24 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { ArrowDown as ArrowDownIcon } from '@phosphor-icons/react/dist/ssr/ArrowDown';
-import { ArrowUp as ArrowUpIcon } from '@phosphor-icons/react/dist/ssr/ArrowUp';
 import { CurrencyDollar as CurrencyDollarIcon } from '@phosphor-icons/react/dist/ssr/CurrencyDollar';
 
-function Appointment({ diff, trend, sx, value }) {
-  const TrendIcon = trend === 'up' ? ArrowUpIcon : ArrowDownIcon;
-  const trendColor = trend === 'up' ? 'var(--mui-palette-success-main)' : 'var(--mui-palette-error-main)';
+// Function to check if the appointment is today
+function isToday(date) {
+  const today = new Date();
+  return (
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  );
+}
+
+function Appointment({ sx, appointments }) {
+  // Filter appointments for today and with 'active' status
+  const todayAppointments = appointments?.filter(({ status, eventDetails }) => {
+    const startDate = new Date(eventDetails.startTime); // Assuming startTime is a timestamp
+    return isToday(startDate) && status === 'active'; // Only include active appointments today
+  }) || [];
 
   return (
     <Card sx={sx}>
@@ -23,25 +34,14 @@ function Appointment({ diff, trend, sx, value }) {
               <Typography color="text.secondary" variant="overline">
                 Today Appointments
               </Typography>
-              <Typography variant="h4">{value?.length}</Typography>
+              <Typography variant="h6">
+                {todayAppointments.length > 0 ? todayAppointments.length : 'No appointments today'}
+              </Typography>
             </Stack>
             <Avatar sx={{ backgroundColor: 'var(--mui-palette-primary-main)', height: '56px', width: '56px' }}>
               <CurrencyDollarIcon fontSize="var(--icon-fontSize-lg)" />
             </Avatar>
           </Stack>
-          {diff ? (
-            <Stack sx={{ alignItems: 'center' }} direction="row" spacing={2}>
-              <Stack sx={{ alignItems: 'center' }} direction="row" spacing={0.5}>
-                <TrendIcon color={trendColor} fontSize="var(--icon-fontSize-md)" />
-                <Typography color={trendColor} variant="body2">
-                  {diff}%
-                </Typography>
-              </Stack>
-              <Typography color="text.secondary" variant="caption">
-                Since last month
-              </Typography>
-            </Stack>
-          ) : null}
         </Stack>
       </CardContent>
     </Card>

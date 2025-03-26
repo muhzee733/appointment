@@ -110,7 +110,7 @@ function LatestOrders({ meetings, loading, error }) {
 
   return (
     <Card sx={{ padding: 2 }}>
-      <CardHeader title="Appointments" />
+      <CardHeader title="Total Appointments" />
       <Divider />
       <Box sx={{ overflowX: 'auto' }}>
         <Table sx={{ minWidth: 800 }}>

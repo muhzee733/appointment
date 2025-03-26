@@ -22,8 +22,7 @@ import {
   Typography,
 } from '@mui/material';
 import { styled } from '@mui/system';
-import { doc, getDoc } from 'firebase/firestore';
-
+import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../../../../firebase';
 
 const formatTimestamp = (timestamp) => {
@@ -44,18 +43,11 @@ const StyledButton = styled(Button)({
 export default function Page({ params }) {
   const { slug } = params;
   const [meeting, setMeeting] = useState(null);
+  const [userAnswers, setUserAnswers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [mounted, setMounted] = useState(false);
-  const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-
     const fetchMeeting = async () => {
       try {
         const meetingRef = doc(db, 'meetings', slug);
@@ -64,6 +56,13 @@ export default function Page({ params }) {
         if (docSnap.exists()) {
           const meetingData = { id: docSnap.id, ...docSnap.data() };
           setMeeting(meetingData);
+
+          // Fetch user answers using inviteeEmail
+          if (meetingData.inviteeEmail) {
+            fetchUserAnswers(meetingData.inviteeEmail);
+          } else {
+            setError('Invitee email not found.');
+          }
         } else {
           setError('Meeting not found.');
         }
@@ -74,8 +73,25 @@ export default function Page({ params }) {
       }
     };
 
+    const fetchUserAnswers = async (email) => {
+      try {
+        const userAnswersRef = collection(db, 'users');
+        const q = query(userAnswersRef, where('email', '==', email));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const userData = querySnapshot.docs[0].data();
+          setUserAnswers(userData.userAnswers || []);
+        } else {
+          setUserAnswers([]);
+        }
+      } catch (error) {
+        console.error('Error fetching user answers:', error);
+      }
+    };
+
     fetchMeeting();
-  }, [slug, mounted]);
+  }, [slug]);
 
   if (loading) {
     return (
@@ -168,9 +184,38 @@ export default function Page({ params }) {
                     </TableBody>
                   </Table>
                 </TableContainer>
+
+                <Divider sx={{ marginTop: 2, marginBottom: 2 }} />
+
+                <Typography variant="h6" sx={{ marginTop: 2 }}>
+                  User Answers:
+                </Typography>
+                {userAnswers.length > 0 ? (
+                  <TableContainer component={Paper} sx={{ marginTop: 2 }}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Question</TableCell>
+                          <TableCell>Answer</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {userAnswers.map((answer, index) => (
+                          <TableRow key={index}>
+                            <TableCell>{answer.question}</TableCell>
+                            <TableCell>{answer.answer}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                ) : (
+                  <Typography>No user answers found.</Typography>
+                )}
+
                 <Divider sx={{ marginTop: 2, marginBottom: 2 }} />
                 <Box sx={{ textAlign: 'center' }}>
-                  {meeting.status === 'active' && !isExpired ? (
+                  {meeting.status === 'active' ? (
                     <Link
                       href={{
                         pathname: `/chat/${meeting.id}`,
@@ -182,13 +227,9 @@ export default function Page({ params }) {
                         Chat Now
                       </StyledButton>
                     </Link>
-                  ) : meeting.status !== 'active' ? (
-                    <Typography variant="body1" sx={{ color: 'red' }}>
-                      This meeting is not active.
-                    </Typography>
                   ) : (
                     <Typography variant="body1" sx={{ color: 'red' }}>
-                      This meeting has expired.
+                      This meeting is not active.
                     </Typography>
                   )}
                 </Box>
@@ -196,14 +237,7 @@ export default function Page({ params }) {
             </Card>
           </Grid>
         ) : (
-          <Grid item xs={12} sm={10} md={8}>
-            <Card>
-              <CardHeader title="Meeting Not Found" sx={{ backgroundColor: '#f5f5f5' }} />
-              <CardContent>
-                <Typography>No meeting found with the provided ID.</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+          <Typography>No meeting found.</Typography>
         )}
       </Grid>
     </>

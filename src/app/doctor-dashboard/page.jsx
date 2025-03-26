@@ -43,19 +43,17 @@ const Page = () => {
     fetchMeetings();
   }, []);
 
+
   return (
     <Grid container spacing={2}>
-      <Grid lg={3} sm={6} xs={12}>
+      <Grid lg={4} sm={6} xs={12}>
         <Appointment diff={12} trend="up" sx={{ height: '100%' }} value={meetings} />
       </Grid>
-      <Grid lg={3} sm={6} xs={12}>
-        <TotalCustomers diff={16} trend="down" sx={{ height: '100%' }} value="1.6k" />
+      <Grid lg={4} sm={6} xs={12}>
+        <TasksProgress sx={{ height: '100%' }} value={75.5} meetings={meetings}/>
       </Grid>
-      <Grid lg={3} sm={6} xs={12}>
-        <TasksProgress sx={{ height: '100%' }} value={75.5} />
-      </Grid>
-      <Grid lg={3} sm={6} xs={12}>
-        <TotalProfit sx={{ height: '100%' }} value="$15k" />
+      <Grid lg={4} sm={6} xs={12}>
+        <TotalProfit sx={{ height: '100%' }} value="$15k" meetings={meetings}/>
       </Grid>
       <Grid lg={12} sm={12} xs={12}>
         <LatestOrders meetings={meetings} loading={loading} error={error} />

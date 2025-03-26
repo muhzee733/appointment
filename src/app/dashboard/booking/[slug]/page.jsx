@@ -24,6 +24,8 @@ import { styled } from '@mui/system';
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 
 import { db } from '../../../../../firebase';
+import Notifications from '@/components/Notification';
+
 
 const formatTimestamp = (timestamp) => {
   const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
@@ -108,6 +110,8 @@ export default function Page({ params }) {
         />
         <meta name="keywords" content="meeting, patient, event, schedule, reschedule" />
       </Head>
+
+       <Notifications />
 
       <Grid container spacing={3} justifyContent="center">
         {meeting ? (
