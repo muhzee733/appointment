@@ -1,22 +1,99 @@
 [
   {
-    "question": "Firstly, do you have a medical condition that has been causing you distress for 3+ months?",
-    "options": ["Yes", "No"]
+    "question": "What medications are you currently taking?",
+    "type": "text"
   },
   {
-    "question": "Great, and how have you tried treating your condition?",
-    "options": ["Medication", "Therapy", "Exercise", "Other"]
+    "question": "What medications have you had in the past and have stopped taking? Please elaborate on why you stopped them.",
+    "type": "text"
   },
   {
-    "question": "Have you ever had surgery?",
-    "options": ["Yes", "No"]
+    "question": "What are your allergies, if any? Do you have any other hypersensitivities to anything?",
+    "type": "text"
   },
   {
-    "question": "How often do you exercise?",
-    "options": ["Daily", "Weekly", "Occasionally", "Never"]
+    "question": "Have you had side effects from any medications in the past? Please list medication strength and dose frequency.",
+    "type": "text"
   },
   {
-    "question": "Do you smoke cigarettes?",
-    "options": ["Yes", "No"]
+    "question": "Have you ever experienced an episode of psychosis or schizophrenia? Has anyone in your family experienced anything similar?",
+    "type": "text"
+  },
+  {
+    "question": "How many standard drinks of alcohol on average would you have per day, if any?",
+    "type": "multiple_choice",
+    "options": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ]
+  },
+  {
+    "question": "How many cigarettes (or its equivalent of vaping) would you have per day?",
+    "type": "multiple_choice",
+    "options": [
+      "Less than 10",
+      "Between 10 – 15",
+      "Between 15 – 20",
+      "Between 20-30",
+      "Between 30 – 40",
+      "More than 40"
+    ]
+  },
+  {
+    "question": "If applicable, are you pregnant or breastfeeding, or are you trying to conceive?",
+    "type": "multiple_choice",
+    "options": [
+      "Pregnant",
+      "Breastfeeding",
+      "Both",
+      "Neither",
+      "Not Applicable",
+      "Trying to conceive (any gender)"
+    ]
+  },
+  {
+    "question": "What is your primary health issue or concern?",
+    "type": "text"
+  },
+  {
+    "question": "Have you been diagnosed, by a medical practitioner, with any condition that is similar to your primary health issue mentioned above? If so, when was this diagnosis made (how long ago)? If this issue has NOT been diagnosed, then please explain why not.",
+    "type": "text"
+  },
+  {
+    "question": "Is the answer to the previous question related to any of the following?",
+    "type": "multiple_choice",
+    "options": [
+      "ADHD",
+      "Anorexia / Bulimia or other eating disorder",
+      "Anxiety",
+      "Chemotherapy Induced Nausea / Vomiting or other side effects",
+      "Depression",
+      "Epilepsy",
+      "Fibromyalgia",
+      "IBS",
+      "Insomnia",
+      "Menopause related symptoms",
+      "Muscular Spasms",
+      "Pain - Chronic",
+      "Palliative Care",
+      "PTSD"
+    ]
+  },
+  {
+    "question": "How long have you been suffering from this condition?",
+    "type": "text"
+  },
+  {
+    "question": "What have you tried so far to help manage this condition? Please list medications/treatment regimens and duration for each.",
+    "type": "text"
+  },
+  {
+    "question": "What other alternative treatments have you tried in the past (if any)? Please list all respective brand names, dose and level of efficacy.",
+    "type": "text"
   }
 ]

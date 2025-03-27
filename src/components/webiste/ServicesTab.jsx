@@ -10,10 +10,10 @@ function MedicalSection() {
               <img src="/assets/img/banner.png" alt="Banner" className="custom-image img-fluid" />
             </div>
             <div className="col-lg-4 col-sm-12 right-box">
-              <h1 className="custom-heading">Plant Medicine</h1>
+              <h1 className="custom-heading">Natural Treatments</h1>
               <h2 className="head-2">for a better you</h2>
-              <p>Frazmedicall is an online medical clinic providing plant medicine care to 100,000+ Australians.</p>
-              <p>Get started with a 30-second pre-screening and see if plant medicine could be right for you.</p>
+              <p>Promedicine is an online medical clinic providing natural medicine care to 100,000+ Australians..</p>
+              <p>The treatment option is determined by the health professional in consultation with the patient. </p>
               <Link href="/questions" className="vs-btn">
                 Start Questionnaire
               </Link>

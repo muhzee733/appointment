@@ -6,7 +6,7 @@ const CategorySection = () => {
     <section className="category-section text-center" id="category">
       <div className="container-ct">
         <div className="row">
-          <h2 className="text-center" id="about">Who is ProMed for?</h2>
+          <h2 className="text-center" id="about">Who is ProMedicine for?</h2>
           <p className="pb-2">
             {`Whether you're exploring alternative healthcare choices for the first time or have had extensive experience with holistic medicine, we're here to connect you with highly qualified doctors and nurses who are experienced and specialize in alternative medicine.`}
           </p>

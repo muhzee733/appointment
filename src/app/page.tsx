@@ -26,7 +26,7 @@ export default function Page() {
               {/* Logo and Hamburger Icon */}
               <div className="col-lg-2 col-md-12 d-flex align-items-center justify-content-between">
                 <Link className="navbar-brand logo" href="/">
-                  <img src="/assets/pro-logo.webp" alt="logo" className="mobile-menu" />
+                  <img src="/assets/pro-logo.png" alt="logo" className="mobile-menu img-fluid" />
                 </Link>
                 <button
                   className="navbar-toggler"

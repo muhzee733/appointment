@@ -2901,9 +2901,6 @@ a.vs-btn.only {
   z-index: -100;
 }
 
-.logo img {
-  max-width: 100% !important;
-}
 
 .parallax {
   position: fixed;
@@ -19527,11 +19524,6 @@ h6 {
   .logo {
     width: 280px;
   }
-}
-
-.logo img {
-  max-height: 26px;
-  margin-right: 6px;
 }
 
 .logo span {
