@@ -5,7 +5,9 @@ import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import {
   Alert,
+  Box,
   Button,
+  Card,
   Container,
   FormControl,
   FormControlLabel,
@@ -15,8 +17,6 @@ import {
   Snackbar,
   TextField,
   Typography,
-  Card,
-  Box,
 } from '@mui/material';
 
 import questionsData from './question.json';
@@ -63,9 +63,19 @@ export default function Page() {
   const nextQuestion = () => {
     if (currentQuestionIndex === null) {
       setCurrentQuestionIndex(0);
-    } else if (selectedOptions[currentQuestionIndex] === null && currentQuestion?.type !== 'text') {
-      setSnackbar({ open: true, message: 'Please select an answer before proceeding.', severity: 'warning' });
     } else {
+      const newSelectedOptions = [...selectedOptions];
+
+      if (currentQuestion?.type === 'text') {
+        if (!selectedOptions[currentQuestionIndex]) {
+          setSnackbar({ open: true, message: 'Please enter your answer before proceeding.', severity: 'warning' });
+          return;
+        }
+      } else if (selectedOptions[currentQuestionIndex] === null) {
+        setSnackbar({ open: true, message: 'Please select an answer before proceeding.', severity: 'warning' });
+        return;
+      }
+
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
   };
@@ -77,10 +87,6 @@ export default function Page() {
   };
 
   const submitAnswers = async () => {
-    if (selectedOptions.includes(null)) {
-      setSnackbar({ open: true, message: 'Please answer all questions before submitting.', severity: 'warning' });
-      return;
-    }
     setIsSubmitting(true);
 
     const answersWithQuestions = questionsData.map((question, index) => ({
@@ -122,7 +128,7 @@ export default function Page() {
             boxShadow: 3,
           }}
         >
-          <Typography variant="h4" gutterBottom sx={{marginBottom: "40px"}}>
+          <Typography variant="h4" gutterBottom sx={{ marginBottom: '40px' }}>
             Pre-Screening Form
           </Typography>
 
@@ -168,8 +174,12 @@ export default function Page() {
                       label="Your Answer"
                       variant="outlined"
                       fullWidth
-                      value={otherText}
-                      onChange={(e) => setOtherText(e.target.value)}
+                      value={selectedOptions[currentQuestionIndex] || ''}
+                      onChange={(e) => {
+                        const newSelectedOptions = [...selectedOptions];
+                        newSelectedOptions[currentQuestionIndex] = e.target.value;
+                        setSelectedOptions(newSelectedOptions);
+                      }}
                       sx={{ marginTop: '10px' }}
                     />
                   ) : null}
